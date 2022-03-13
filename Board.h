@@ -5,6 +5,9 @@
 
 class Board {
 public:
+	Board();
+	~Board();
+
 	bool IsEnded();
 
 	void DeleteRow(int row);
@@ -15,9 +18,6 @@ public:
 
 private:
 	int CurrentBoard[BOARD_WIDTH][BOARD_HEIGHT];
-
-	Board();
-	~Board();
 };
 
 #endif

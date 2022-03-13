@@ -9,16 +9,25 @@
 
 // -- constant -- 
 
+// error log
+#define SDL_ERROR 1
+#define IMG_ERROR 2
+
 // button
+enum ButtonSprite {
+	BUTTON_DEFAULT,
+	BUTTON_HOVERED,
+	BUTTON_DOWN,
+	BUTTON_TOTAL
+};
 
 // window
 const int WINDOW_WIDTH = 1600;
 const int WINDOW_HEIGHT = 1000;
 
 // board
-const int BOARD_LINE_WIDTH = 6;
 const int BOARD_WIDTH = 10;
-const int BOARD_HEIGHT = 20;
+const int BOARD_HEIGHT = 23;
 
 enum BoardStatus {
 	POS_FREE,
@@ -28,27 +37,27 @@ enum BoardStatus {
 // piece
 
 enum PiecesNumbering {
-	SQUARE_PIECE,
+	O_PIECE,
 	L_PIECE,
 	REV_L_PIECE,
-	LINE_PIECE,
+	I_PIECE,
 	Z_PIECE,
-	REV_Z_PIECE,
+	S_PIECE,
 	T_PIECE,
 	TOTAL_PIECE
 };
-/*
-enum PiecesColor {
-	YELLOW_PIECE,
-	ORANGE_PIECE,
-	NAVY_PIECE,
-	CYAN_PIECE,
-	RED_PIECE,
-	LIME_PIECE,
-	PINK_PIECE,
-	TOTAL_PIECE_COLOR
+
+enum BlockColor {
+	CYAN_BLOCK,
+	LIME_BLOCK,
+	NAVY_BLOCK,
+	ORANGE_BLOCK,
+	PINK_BLOCK,
+	RED_BLOCK,
+	YELLOW_BLOCK,
+	TOTAL_BLOCK_COLOR
 };
-*/
+
 
 void ErrorLog(std::string msg, int error_code);
 
