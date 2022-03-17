@@ -20,12 +20,13 @@ Texture gPlayButtonTex[BUTTON_TOTAL]; // 350x150
 Texture gHelpButtonTex[BUTTON_TOTAL]; // 350x150
 
 // Playfield
-Texture gBoardTex;
+Texture gBoardTex;// 1920x1057
 // 33x33 block 
 Texture gBlock[TOTAL_BLOCK_COLOR]; // I L O revL S T Z
 
-SDL_Rect gHomeScreenClip = {0, 0, 1600, 1000};
+SDL_Rect gHomeScreenClip = {0, 0, 1920, 1057};
 SDL_Rect gTetrisLogoClip = {500, 0, 600, 424};
+SDL_Rect gBoardTexClip = {0, 0, 1600, 1000};
 
 // Button
 Button gPlayButton(625, 550, 350, 150);
@@ -76,7 +77,7 @@ int main(int argc, char* argv[]) {
         }
 
         SDL_RenderClear(gRenderer);
-        gHomeScreen.Render(gRenderer, 0, 0, &gHomeScreenClip);
+        gBoardTex.Render(gRenderer, 0, 0, &gBoardTexClip);
         SDL_RenderPresent(gRenderer);
       }
 
@@ -119,6 +120,10 @@ bool Init() {
   gPlayButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/play_hovered.png", gRenderer);
   gPlayButtonTex[BUTTON_DOWN].LoadTextureFromFile("images/play_clicked.png", gRenderer);
   gHelpButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/help.png", gRenderer);
+  gHelpButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/play_hovered.png", gRenderer);
+  gHelpButtonTex[BUTTON_DOWN].LoadTextureFromFile("images/play_clicked.png", gRenderer);
+
+  gBoardTex.LoadTextureFromFile("images/play_field.png", gRenderer);
 
   // gBoardTex.LoadTextureFromFile();
 
