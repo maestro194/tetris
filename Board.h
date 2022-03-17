@@ -5,8 +5,8 @@
 
 class Board {
 public:
-	Board();
-	~Board();
+	//Board();
+	//~Board();
 
 	bool IsEnded();
 

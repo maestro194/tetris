@@ -5,12 +5,12 @@
 
 class Pieces {
 public:
-	int GetBlockType(int piece, int rotation, int x, int y);
-	int GetXInitPos(int piece, int rotation);
-	int GetYInitPos(int piece, int rotation);
-private:
-	Pieces();
+	Pieces(int pieceNumber);
 	~Pieces();
+
+private:
+	int boardPos[4][2];
+	int pieceType;
 };
 
 #endif
