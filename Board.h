@@ -2,6 +2,7 @@
 #define BOARD_H
 
 #include "GameBase.h"
+#include "Pieces.h"
 
 class Board {
 public:
@@ -12,7 +13,7 @@ public:
 
 	void DeleteRow(int row);
 	void DeletePosibleRow();
-	bool IsPosibleMove();
+	bool IsPosibleMove(Piece p);
 
 	void DrawBoard(SDL_Renderer* renderer);
 
