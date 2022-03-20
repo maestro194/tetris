@@ -1,5 +1,4 @@
 #include "Pieces.h"
-#include "GameBase.h"
 
 Piece::Piece(int pieceNumber) {
   rotation = 0;
@@ -62,31 +61,42 @@ Piece::Piece(int pieceNumber) {
 }
 
 void Piece::PieceLeftMove(){
-
+  yOffSet --;
+  if(!CheckPieceMove())
+    yOffSet ++;
 }
 
 void Piece::PieceRightMove(){
-
+  yOffSet ++;
+  if(!CheckPieceMove())
+    yOffSet --;
 }
 
 void Piece::PieceDownMove(){
-
+  xOffSet ++;
+  if(!CheckPieceMove()){
+    xOffSet --;
+  }
 }
 
 void Piece::PieceDropMove(){
-
+  do
+  {
+    xOffSet ++;
+  } while (CheckPieceMove());
+  xOffSet --;
 }
 
 void Piece::PieceCWRotateMove(){
-
+  rotation = (rotation + 1) % 4;
 }
 
 void Piece::PieceCCWRotateMove(){
-
+  rotation = (rotation + 3) % 4;
 }
 
 void Piece::PieceFlipMove(){
-
+  rotation = (rotation + 2) % 4;
 }
 
 Piece::~Piece() {

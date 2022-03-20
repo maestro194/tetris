@@ -6,7 +6,7 @@
 class Piece {
 public:
 	Piece(int pieceNumber);
-	~Piece();
+	//~Piece();
 
 	void PieceLeftMove();
 	void PieceRightMove();
@@ -16,10 +16,14 @@ public:
 	void PieceCCWRotateMove();
 	void PieceFlipMove();
 
+	bool CheckPieceMove();
+
 private:
 	char shape[4][4][4];
 	int pieceType;
 	int rotation;
+	int xOffSet;
+	int yOffSet;
 };
 
 #endif
