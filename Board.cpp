@@ -1,5 +1,4 @@
 #include "Board.h"
-#include "GameBase.h"
 
 bool Board::IsEnded() {
 	for (int i = 0; i < BOARD_WIDTH; i++)
@@ -28,11 +27,7 @@ void Board::DeletePosibleRow() {
 }
 
 bool Board::IsPosibleMove(Piece p) {
-	for(int i = 0; i < 4; i ++){
-		if(CurrentBoard[p.boardPos[i][0]][p.boardPos[i][1]] != FREE_BLOCK)
-			return false;
-	}
-	return true;
+	
 }
 
 void Board::DrawBoard(SDL_Renderer* renderer, Texture gBlock[]) {
@@ -41,8 +36,8 @@ void Board::DrawBoard(SDL_Renderer* renderer, Texture gBlock[]) {
 		for(int j = 0; j < BOARD_WIDTH; j++){
 			if(CurrentBoard[i][j] != FREE_BLOCK){
 				gBlock[CurrentBoard[i][j]].Render(renderer, 
-				BOARD_START_X + BLOCK_HEIGHT * i, 
-				BOARD_START_Y + BLOCK_WIDTH * j, gPieceClip)
+				BOARD_START_X + BLOCK_HEIGHT * i,
+				BOARD_START_Y + BLOCK_WIDTH * j, &gPieceClip);
 			}
 		}
 	}

@@ -24,8 +24,8 @@ Texture gBoardTex;
 // 33px*33px block 
 Texture gBlock[TOTAL_BLOCK_COLOR]; // I L O revL S T Z
 
-SDL_Rect gHomeScreenClip = {0, 0, 1600, 1000};
-SDL_Rect gTetrisLogoClip = {500, 0, 600, 424};
+SDL_Rect gHomeScreenClip = {0, 0, 1280, 720};
+SDL_Rect gTetrisLogoClip = {375, 0, 450, 318};
 
 // Button
 Button gPlayButton(625, 550, 350, 150);
@@ -36,7 +36,8 @@ SDL_Rect gHelpButtonClip = {625, 750, 350, 150};
 
 // Pieces
 std::queue<Piece> incomingPieces;
-Piece currentPiece;
+//Piece currentPiece;
+int pieceCount;
 
 // Pre-declared Function
 bool Init();
@@ -67,12 +68,15 @@ int main(int argc, char* argv[]) {
 
     SDL_RenderClear(gRenderer);
     gHomeScreen.Render(gRenderer, 0, 0, &gHomeScreenClip);
-    gTetrisLogo.Render(gRenderer, 500, 0, &gTetrisLogoClip);
+    gTetrisLogo.Render(gRenderer, 375, 0, &gTetrisLogoClip);
     gPlayButton.Render(gRenderer, gPlayButtonTex[gPlayButton.buttonSprite], &gPlayButtonClip);
     gHelpButton.Render(gRenderer, gHelpButtonTex[gHelpButton.buttonSprite], &gHelpButtonClip);
     SDL_RenderPresent(gRenderer);
 
     if (gPlayButton.buttonSprite == BUTTON_DOWN) { // game started
+      // game value initialization
+      pieceCount = 0;
+
       while (GameRunning) {
         while (SDL_PollEvent(&e)) {
           if (e.type == SDL_QUIT)

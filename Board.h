@@ -3,6 +3,7 @@
 
 #include "GameBase.h"
 #include "Pieces.h"
+#include "Texture.h"
 
 class Board {
 public:
@@ -15,7 +16,7 @@ public:
 	void DeletePosibleRow();
 	bool IsPosibleMove(Piece p);
 
-	void DrawBoard(SDL_Renderer* renderer);
+	void DrawBoard(SDL_Renderer* renderer, Texture gBlock[]);
 
 private:
 	int CurrentBoard[BOARD_WIDTH][BOARD_HEIGHT];

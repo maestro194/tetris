@@ -23,27 +23,29 @@ enum ButtonSprite {
 };
 
 // window
-const int WINDOW_WIDTH = 1600;
-const int WINDOW_HEIGHT = 1000;
+const int WINDOW_WIDTH = 1200;
+const int WINDOW_HEIGHT = 720;
 
 // board
 const int BOARD_WIDTH = 10;
 const int BOARD_HEIGHT = 23;
-//const int BOARD_START_X;
-//const int BOARD_START_Y;
-//const int BLOCK_WIDTH;
-//const int BLOCK_HEIGHT;
+const int BOARD_START_X = 500; // random value
+const int BOARD_START_Y = 100; // random value
+const int BLOCK_WIDTH = 33;
+const int BLOCK_HEIGHT = 33;
+const int	PIECE_START_BLOCK_X = 1;
+const int PIECE_START_BLOCK_Y = 4;
 
 // piece
 
 enum PiecesNumbering {
-	O_PIECE,
-	L_PIECE,
-	J_PIECE,
 	I_PIECE,
-	Z_PIECE,
 	S_PIECE,
+	J_PIECE,
+	L_PIECE,
 	T_PIECE,
+	Z_PIECE,
+	O_PIECE,
 	TOTAL_PIECE
 };
 
