@@ -3,14 +3,23 @@
 
 #include "GameBase.h"
 
-class Pieces {
+class Piece {
 public:
-	Pieces(int pieceNumber);
-	~Pieces();
+	Piece(int pieceNumber);
+	~Piece();
+
+	void PieceLeftMove();
+	void PieceRightMove();
+	void PieceDownMove();
+	void PieceDropMove();
+	void PieceCWRotateMove();
+	void PieceCCWRotateMove();
+	void PieceFlipMove();
 
 private:
-	int boardPos[4][2];
+	char shape[4][4][4];
 	int pieceType;
+	int rotation;
 };
 
 #endif

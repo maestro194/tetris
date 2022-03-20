@@ -21,7 +21,7 @@ Texture gHelpButtonTex[BUTTON_TOTAL]; // 350x150
 
 // Playfield
 Texture gBoardTex;// 1920x1057
-// 33x33 block 
+// 33px*33px block 
 Texture gBlock[TOTAL_BLOCK_COLOR]; // I L O revL S T Z
 
 SDL_Rect gHomeScreenClip = {0, 0, 1920, 1057};
@@ -34,6 +34,10 @@ Button gHelpButton(625, 750, 350, 150);
 
 SDL_Rect gPlayButtonClip = {625, 550, 350, 150};
 SDL_Rect gHelpButtonClip = {625, 750, 350, 150};
+
+// Pieces
+std::queue<Piece> incomingPieces;
+Piece currentPiece;
 
 // Pre-declared Function
 bool Init();
@@ -144,6 +148,8 @@ void Close() {
   for(int i = 0; i < BUTTON_TOTAL; i ++)
     gPlayButtonTex[i].FreeTexture(),
     gHelpButtonTex[i].FreeTexture();
+  for(int i = 0; i < TOTAL_BLOCK_COLOR; i ++)
+    gBlock[i].FreeTexture();
 
   SDL_DestroyWindow(gWindow);
   gWindow = NULL;

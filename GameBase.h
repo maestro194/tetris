@@ -6,6 +6,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include <string>
+#include <queue>
 
 // -- constant -- 
 
@@ -28,18 +29,17 @@ const int WINDOW_HEIGHT = 1000;
 // board
 const int BOARD_WIDTH = 10;
 const int BOARD_HEIGHT = 23;
-
-enum BoardStatus {
-	POS_FREE,
-	POS_FILLED
-};
+//const int BOARD_START_X;
+//const int BOARD_START_Y;
+//const int BLOCK_WIDTH;
+//const int BLOCK_HEIGHT;
 
 // piece
 
 enum PiecesNumbering {
 	O_PIECE,
 	L_PIECE,
-	REV_L_PIECE,
+	J_PIECE,
 	I_PIECE,
 	Z_PIECE,
 	S_PIECE,
@@ -48,6 +48,7 @@ enum PiecesNumbering {
 };
 
 enum BlockColor {
+	FREE_BLOCK,
 	CYAN_BLOCK,
 	LIME_BLOCK,
 	NAVY_BLOCK,
