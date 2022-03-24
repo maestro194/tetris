@@ -3,10 +3,12 @@
 #include "Game.h"
 #include "GameBase.h"
 #include "Pieces.h"
+#include "Texture.h"
 
 // Global
 SDL_Window* gWindow;
 SDL_Renderer* gRenderer;
+int moveTime;
 
 // Board
 Board gBoard;
@@ -16,8 +18,8 @@ Board gBoard;
 // Homescreen
 Texture gHomeScreen; // fullscreen
 Texture gTetrisLogo; // 600x424
-Texture gPlayButtonTex[BUTTON_TOTAL]; // 350x150
-Texture gHelpButtonTex[BUTTON_TOTAL]; // 350x150
+Texture gPlayButtonTex[BUTTON_TOTAL]; // 250x100
+Texture gHelpButtonTex[BUTTON_TOTAL]; // 250x100
 
 // Playfield
 Texture gBoardTex;// 1920x1057
@@ -25,23 +27,26 @@ Texture gBoardTex;// 1920x1057
 Texture gBlock[TOTAL_BLOCK_COLOR]; // I L O revL S T Z
 
 SDL_Rect gHomeScreenClip = {0, 0, 1280, 720};
-SDL_Rect gTetrisLogoClip = {375, 0, 450, 318};
-SDL_Rect gBoardTexClip = {0, 0, 1600, 1000};
+SDL_Rect gTetrisLogoClip = {415, 0, 450, 318};
+SDL_Rect gBoardTexClip = {0, 0, 1280, 720};
 
 // Button
-Button gPlayButton(625, 550, 350, 150);
-Button gHelpButton(625, 750, 350, 150);
+Button gPlayButton(515, 450, 250, 100);
+Button gHelpButton(515, 575, 250, 100);
 
-SDL_Rect gPlayButtonClip = {625, 550, 350, 150};
-SDL_Rect gHelpButtonClip = {625, 750, 350, 150};
+SDL_Rect gPlayButtonClip = {515, 450, 250, 100};
+SDL_Rect gHelpButtonClip = {515, 575, 250, 100};
 
 // Pieces
-std::queue<Piece> incomingPieces;
-//Piece currentPiece;
+Piece currentPiece;
+int incomingPiece[15];
+int arrayForRandom[7] = {1,2,3,4,5,6,7};
 int pieceCount;
 
 // Pre-declared Function
 bool Init();
+void firstPieceBag();
+void secondPieceBag();
 void Close();
 
 int main(int argc, char* argv[]) {
@@ -69,7 +74,7 @@ int main(int argc, char* argv[]) {
 
     SDL_RenderClear(gRenderer);
     gHomeScreen.Render(gRenderer, 0, 0, &gHomeScreenClip);
-    gTetrisLogo.Render(gRenderer, 375, 0, &gTetrisLogoClip);
+    gTetrisLogo.Render(gRenderer, 415, 0, &gTetrisLogoClip);
     gPlayButton.Render(gRenderer, gPlayButtonTex[gPlayButton.buttonSprite], &gPlayButtonClip);
     gHelpButton.Render(gRenderer, gHelpButtonTex[gHelpButton.buttonSprite], &gHelpButtonClip);
     SDL_RenderPresent(gRenderer);
@@ -77,15 +82,37 @@ int main(int argc, char* argv[]) {
     if (gPlayButton.buttonSprite == BUTTON_DOWN) { // game started
       // game value initialization
       pieceCount = 0;
+      firstPieceBag();
+      secondPieceBag();
+      moveTime = SDL_GetTicks();
+      currentPiece.Init(incomingPiece[pieceCount]);
 
       while (GameRunning) {
         while (SDL_PollEvent(&e)) {
           if (e.type == SDL_QUIT)
-            GameRunning = false;
+            GameRunning = false, HomeRunning = false;
+        }
+
+        // piece move
+        if (SDL_GetTicks() > moveTime) {
+          moveTime += 1000;
+
+          if (gBoard.IsPosibleMove(currentPiece)) {
+            pieceCount = (pieceCount + 1) % 14;
+            if (pieceCount == 0) {
+              firstPieceBag();
+              secondPieceBag();
+            }
+            currentPiece.Init(incomingPiece[pieceCount]);
+          }
+          else {
+            currentPiece.PieceDownMove();
+          }
         }
 
         SDL_RenderClear(gRenderer);
-        gBoardTex.Render(gRenderer, 0, 0, &gBoardTexClip);
+        //gBoard.DrawBoard(gRenderer, gBlock);
+        //gBoardTex.Render(gRenderer, 0, 0, &gBoardTexClip);
         SDL_RenderPresent(gRenderer);
       }
 
@@ -133,8 +160,6 @@ bool Init() {
 
   gBoardTex.LoadTextureFromFile("images/play_field.png", gRenderer);
 
-  // gBoardTex.LoadTextureFromFile();
-
   gBlock[0].LoadTextureFromFile("images/block_cyan.png", gRenderer);
   gBlock[1].LoadTextureFromFile("images/block_lime.png", gRenderer);
   gBlock[2].LoadTextureFromFile("images/block_navy.png", gRenderer);
@@ -144,6 +169,18 @@ bool Init() {
   gBlock[6].LoadTextureFromFile("images/block_yellow.png", gRenderer);
   
   return success;
+}
+
+void firstPieceBag() {
+  random_shuffle(arrayForRandom, arrayForRandom + 7);
+  for (int i = 0; i < 7; i++)
+    incomingPiece[i] = arrayForRandom[i];
+}
+
+void secondPieceBag() {
+  random_shuffle(arrayForRandom, arrayForRandom + 7);
+  for (int i = 7; i < 14; i++)
+    incomingPiece[i] = arrayForRandom[i - 7];
 }
 
 void Close() {

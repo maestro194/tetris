@@ -6,7 +6,9 @@
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include <string>
-#include <queue>
+#include <algorithm>
+
+using namespace std;
 
 // -- constant -- 
 
@@ -23,22 +25,23 @@ enum ButtonSprite {
 };
 
 // window
-const int WINDOW_WIDTH = 1200;
+const int WINDOW_WIDTH = 1280;
 const int WINDOW_HEIGHT = 720;
 
 // board
 const int BOARD_WIDTH = 10;
 const int BOARD_HEIGHT = 23;
-const int BOARD_START_X = 500; // random value
-const int BOARD_START_Y = 100; // random value
-const int BLOCK_WIDTH = 33;
-const int BLOCK_HEIGHT = 33;
+const int BOARD_START_X = 30; // random value
+const int BOARD_START_Y = 30; // random value
+const int BLOCK_WIDTH = 22;
+const int BLOCK_HEIGHT = 22;
 const int	PIECE_START_BLOCK_X = 1;
 const int PIECE_START_BLOCK_Y = 4;
 
 // piece
 
 enum PiecesNumbering {
+	RANDOM_PIECE,
 	I_PIECE,
 	S_PIECE,
 	J_PIECE,

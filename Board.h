@@ -7,8 +7,8 @@
 
 class Board {
 public:
-	//Board();
-	//~Board();
+	Board();
+	~Board();
 
 	bool IsEnded();
 
@@ -19,7 +19,7 @@ public:
 	void DrawBoard(SDL_Renderer* renderer, Texture gBlock[]);
 
 private:
-	int CurrentBoard[BOARD_WIDTH][BOARD_HEIGHT];
+	int board[BOARD_WIDTH][BOARD_HEIGHT];
 };
 
 #endif

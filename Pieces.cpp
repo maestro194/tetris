@@ -1,11 +1,17 @@
 #include "Pieces.h"
 
-Piece::Piece(int pieceNumber) {
+Piece::Piece() {
+
+}
+
+void Piece::Init(int pieceNumber) {
   rotation = 0;
   for(int i = 0; i < 4; i ++)
     for(int j = 0; j < 4; j ++)
       for(int k = 0; k < 4; k ++)
         shape[i][j][k] = ' ';
+  xOffSet = 0;
+  yOffSet = 0;
   switch (pieceNumber)
   {
   case O_PIECE:
@@ -62,29 +68,28 @@ Piece::Piece(int pieceNumber) {
 
 void Piece::PieceLeftMove(){
   yOffSet --;
-  if(!CheckPieceMove())
+  //if(!CheckPieceMove())
     yOffSet ++;
 }
 
 void Piece::PieceRightMove(){
   yOffSet ++;
-  if(!CheckPieceMove())
+  //if(!CheckPieceMove())
     yOffSet --;
 }
 
 void Piece::PieceDownMove(){
   xOffSet ++;
-  if(!CheckPieceMove()){
-    xOffSet --;
-  }
+  //if(!CheckPieceMove())
+    //xOffSet --;
 }
 
 void Piece::PieceDropMove(){
-  do
+  /*                        do
   {
     xOffSet ++;
   } while (CheckPieceMove());
-  xOffSet --;
+  xOffSet --;*/
 }
 
 void Piece::PieceCWRotateMove(){
@@ -97,6 +102,10 @@ void Piece::PieceCCWRotateMove(){
 
 void Piece::PieceFlipMove(){
   rotation = (rotation + 2) % 4;
+}
+
+void Piece::DrawPiece(SDL_Renderer* renderer, Texture gBlock[]) {
+  
 }
 
 Piece::~Piece() {
