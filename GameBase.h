@@ -7,6 +7,8 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <ctime>
+#include <cstdlib>
 
 using namespace std;
 
@@ -29,14 +31,12 @@ const int WINDOW_WIDTH = 1280;
 const int WINDOW_HEIGHT = 720;
 
 // board
-const int BOARD_WIDTH = 10;
-const int BOARD_HEIGHT = 23;
-const int BOARD_START_X = 30; // random value
+const int BOARD_WIDTH = 15;
+const int BOARD_HEIGHT = 25;
+const int BOARD_START_X = 484; // random value
 const int BOARD_START_Y = 30; // random value
-const int BLOCK_WIDTH = 22;
-const int BLOCK_HEIGHT = 22;
-const int	PIECE_START_BLOCK_X = 1;
-const int PIECE_START_BLOCK_Y = 4;
+const int BLOCK_WIDTH = 26;
+const int BLOCK_HEIGHT = 26;
 
 // piece
 

@@ -29,6 +29,7 @@ Texture gBlock[TOTAL_BLOCK_COLOR]; // I L O revL S T Z
 SDL_Rect gHomeScreenClip = {0, 0, 1280, 720};
 SDL_Rect gTetrisLogoClip = {415, 0, 450, 318};
 SDL_Rect gBoardTexClip = {0, 0, 1280, 720};
+SDL_Rect gBlockClip = {0, 0, BLOCK_WIDTH, BLOCK_HEIGHT};
 
 // Button
 Button gPlayButton(515, 450, 250, 100);
@@ -95,24 +96,39 @@ int main(int argc, char* argv[]) {
 
         // piece move
         if (SDL_GetTicks() > moveTime) {
-          moveTime += 1000;
+          moveTime += 300;
+          currentPiece.PieceDownMove();
 
-          if (gBoard.IsPosibleMove(currentPiece)) {
+          if (!gBoard.IsPosibleMove(currentPiece)) {
+            currentPiece.PieceUpMove();
             pieceCount = (pieceCount + 1) % 14;
+            gBoard.MergePiece(currentPiece);
             if (pieceCount == 0) {
               firstPieceBag();
               secondPieceBag();
             }
             currentPiece.Init(incomingPiece[pieceCount]);
           }
-          else {
-            currentPiece.PieceDownMove();
-          }
         }
-
+        
         SDL_RenderClear(gRenderer);
-        //gBoard.DrawBoard(gRenderer, gBlock);
-        //gBoardTex.Render(gRenderer, 0, 0, &gBoardTexClip);
+        
+        // draw board
+        gBoardTex.Render(gRenderer, 0, 0, &gBoardTexClip);
+        gBoard.DrawBoard(gRenderer, gBlock);
+        
+        // draw the well,  replace with image soon
+        SDL_RenderDrawLine(gRenderer, 483, 82, 483, 602);
+        SDL_RenderDrawLine(gRenderer, 483, 602, 743, 602);
+        SDL_RenderDrawLine(gRenderer, 743, 82, 743, 602);
+        SDL_SetRenderDrawColor(gRenderer, 128, 128, 128, 128);
+        for(int j = 1; j < 10; j ++)
+          SDL_RenderDrawLine(gRenderer, 483 + 26 * j, 82, 483 + 26 * j, 602);
+        for(int i = 1; i < 20; i ++)
+          SDL_RenderDrawLine(gRenderer, 483, 82 + 26 * i, 743, 82 + 26 * i);
+        
+        // draw current piece on the board
+        currentPiece.DrawPiece(gRenderer, gBlock);
         SDL_RenderPresent(gRenderer);
       }
 
@@ -144,9 +160,11 @@ bool Init() {
       gWindow = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
       gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
-      SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);  
+      SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 128);  
     }
   }
+
+  srand(time(0));
 
   gHomeScreen.LoadTextureFromFile("images/home_screen.png", gRenderer);
   gTetrisLogo.LoadTextureFromFile("images/tetris_logo.png", gRenderer);
@@ -158,15 +176,15 @@ bool Init() {
   gHelpButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/play_hovered.png", gRenderer);
   gHelpButtonTex[BUTTON_DOWN].LoadTextureFromFile("images/play_clicked.png", gRenderer);
 
-  gBoardTex.LoadTextureFromFile("images/play_field.png", gRenderer);
+  gBoardTex.LoadTextureFromFile("images/plain_play_field.png", gRenderer);
 
-  gBlock[0].LoadTextureFromFile("images/block_cyan.png", gRenderer);
-  gBlock[1].LoadTextureFromFile("images/block_lime.png", gRenderer);
-  gBlock[2].LoadTextureFromFile("images/block_navy.png", gRenderer);
-  gBlock[3].LoadTextureFromFile("images/block_orange.png", gRenderer);
-  gBlock[4].LoadTextureFromFile("images/block_pink.png", gRenderer);
-  gBlock[5].LoadTextureFromFile("images/block_red.png", gRenderer);
-  gBlock[6].LoadTextureFromFile("images/block_yellow.png", gRenderer);
+  gBlock[1].LoadTextureFromFile("images/block_cyan.png", gRenderer);
+  gBlock[2].LoadTextureFromFile("images/block_lime.png", gRenderer);
+  gBlock[3].LoadTextureFromFile("images/block_navy.png", gRenderer);
+  gBlock[4].LoadTextureFromFile("images/block_orange.png", gRenderer);
+  gBlock[5].LoadTextureFromFile("images/block_pink.png", gRenderer);
+  gBlock[6].LoadTextureFromFile("images/block_red.png", gRenderer);
+  gBlock[7].LoadTextureFromFile("images/block_yellow.png", gRenderer);
   
   return success;
 }

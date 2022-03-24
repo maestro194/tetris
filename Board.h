@@ -15,11 +15,12 @@ public:
 	void DeleteRow(int row);
 	void DeletePosibleRow();
 	bool IsPosibleMove(Piece p);
+	void MergePiece(Piece p);
 
 	void DrawBoard(SDL_Renderer* renderer, Texture gBlock[]);
 
 private:
-	int board[BOARD_WIDTH][BOARD_HEIGHT];
+	int board[BOARD_HEIGHT][BOARD_WIDTH];
 };
 
 #endif

@@ -13,6 +13,7 @@ public:
 
 	void PieceLeftMove();
 	void PieceRightMove();
+	void PieceUpMove();
 	void PieceDownMove();
 	void PieceDropMove();
 	void PieceCWRotateMove();

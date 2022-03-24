@@ -10,8 +10,8 @@ void Piece::Init(int pieceNumber) {
     for(int j = 0; j < 4; j ++)
       for(int k = 0; k < 4; k ++)
         shape[i][j][k] = ' ';
-  xOffSet = 0;
-  yOffSet = 0;
+  xOffSet = 1;
+  yOffSet = 6;
   switch (pieceNumber)
   {
   case O_PIECE:
@@ -68,20 +68,18 @@ void Piece::Init(int pieceNumber) {
 
 void Piece::PieceLeftMove(){
   yOffSet --;
-  //if(!CheckPieceMove())
-    yOffSet ++;
 }
 
 void Piece::PieceRightMove(){
   yOffSet ++;
-  //if(!CheckPieceMove())
-    yOffSet --;
+}
+
+void Piece::PieceUpMove(){
+  xOffSet --;
 }
 
 void Piece::PieceDownMove(){
   xOffSet ++;
-  //if(!CheckPieceMove())
-    //xOffSet --;
 }
 
 void Piece::PieceDropMove(){
@@ -105,7 +103,14 @@ void Piece::PieceFlipMove(){
 }
 
 void Piece::DrawPiece(SDL_Renderer* renderer, Texture gBlock[]) {
-  
+  SDL_Rect gPieceClip = {0, 0, BLOCK_WIDTH - 1, BLOCK_HEIGHT - 1};
+  for(int i = 0; i < 4; i ++)
+    for(int j = 0; j < 4; j ++)
+      if(shape[rotation][i][j] == '*')
+        gBlock[pieceType].Render(renderer, 
+        BOARD_START_X + BLOCK_WIDTH * (j - 3 + yOffSet),
+        BOARD_START_Y + BLOCK_HEIGHT * (i - 1 + xOffSet),
+        &gPieceClip);
 }
 
 Piece::~Piece() {
