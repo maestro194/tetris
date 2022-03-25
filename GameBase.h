@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <iostream>
 #include <string>
 #include <algorithm>
@@ -17,6 +18,7 @@ using namespace std;
 // error log
 #define SDL_ERROR 1
 #define IMG_ERROR 2
+#define MIX_ERROR 3
 
 // button
 enum ButtonSprite {

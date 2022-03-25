@@ -48,6 +48,8 @@ int pieceCount;
 bool Init();
 void firstPieceBag();
 void secondPieceBag();
+void DrawPreviewPiece();
+void DrawHoldPiece();
 void Close();
 
 int main(int argc, char* argv[]) {
@@ -124,8 +126,24 @@ int main(int argc, char* argv[]) {
                 currentPiece.PieceFlipMove();
             }
             if (e.key.keysym.sym == SDLK_SPACE) {
-              currentPiece.PieceDropMove();
+              do{
+                currentPiece.PieceDownMove();
+              }while(gBoard.IsPosibleMove(currentPiece));
+              currentPiece.PieceUpMove();
               moveTime = SDL_GetTicks();
+
+              pieceCount = (pieceCount + 1) % 14;
+              gBoard.MergePiece(currentPiece);
+              if (pieceCount == 0)
+                secondPieceBag();
+              if (pieceCount == 7)
+                firstPieceBag();
+              currentPiece.Init(incomingPiece[pieceCount]);
+
+              gBoard.DeletePosibleRow();
+            }
+            if (e.key.keysym.sym == SDLK_LSHIFT) {
+
             }
           }
         }
@@ -184,22 +202,25 @@ int main(int argc, char* argv[]) {
 bool Init() {
   bool success = true;
 
-  if (SDL_Init(SDL_INIT_VIDEO) < 0)
-  {
-    ErrorLog("SDL could not initialize. ", SDL_ERROR),
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    ErrorLog("SDL could not init video. ", SDL_ERROR),
       success = false;
   }
+  else if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+    ErrorLog("SDL cound not init audio. ", SDL_ERROR);
+  }
+  else if (!(IMG_Init(IMG_INIT_PNG))) {
+    ErrorLog("IMG_Init failed to init. ", IMG_ERROR);
+    success = false;
+  }
+  else if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 2048)) {
+    ErrorLog("SDL_mixer failed to init. ", MIX_ERROR);
+  }
   else {
-    if (!(IMG_Init(IMG_INIT_PNG))) {
-      ErrorLog("IMG_Init failed to init. ", IMG_ERROR);
-      success = false;
-    }
-    else {
-      gWindow = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-      gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
-      SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 128);  
-    }
+    gWindow = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+      WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 128);  
   }
 
   srand(time(0));
@@ -254,6 +275,7 @@ void Close() {
   gRenderer = NULL;
 
   IMG_Quit();
+  Mix_Quit();
   SDL_Quit();
 }
 
