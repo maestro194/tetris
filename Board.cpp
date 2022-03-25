@@ -1,7 +1,7 @@
 #include "Board.h"
 
 bool Board::IsEnded() {
-	for (int i = 0; i < BOARD_WIDTH; i++)
+	for (int i = 1; i < BOARD_WIDTH; i++)
 		if (board[0][i] != FREE_BLOCK)
 			return true;
 	return false;
@@ -10,19 +10,19 @@ bool Board::IsEnded() {
 void Board::DeleteRow(int row) {
 	for (int i = row; i > 0; i--)
 		for (int j = 0; j < BOARD_WIDTH; j++)
-			board[i][j] = board[i][j - 1];
+			board[i][j] = board[i - 1][j];
 	for (int i = 0; i < BOARD_WIDTH; i++)
 		board[0][i] = FREE_BLOCK;
 }
 
 void Board::DeletePosibleRow() {
-	for (int j = 0; j < BOARD_HEIGHT; j ++){
+	for (int i = 1; i < 23; i ++){
 		bool rowFilled = true;
-		for (int i = 0; i < BOARD_WIDTH; i++)
+		for (int j = 0; j < BOARD_WIDTH; j ++)
 			if (board[i][j] == FREE_BLOCK)
 				rowFilled = false;
 		if (rowFilled)
-			DeleteRow(j);
+			DeleteRow(i);
 	}
 }
 

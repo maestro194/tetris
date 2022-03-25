@@ -83,11 +83,7 @@ void Piece::PieceDownMove(){
 }
 
 void Piece::PieceDropMove(){
-  /*                        do
-  {
-    xOffSet ++;
-  } while (CheckPieceMove());
-  xOffSet --;*/
+   
 }
 
 void Piece::PieceCWRotateMove(){

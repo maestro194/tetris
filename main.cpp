@@ -92,22 +92,60 @@ int main(int argc, char* argv[]) {
         while (SDL_PollEvent(&e)) {
           if (e.type == SDL_QUIT)
             GameRunning = false, HomeRunning = false;
+          if (e.type == SDL_KEYDOWN) {
+            if (e.key.keysym.sym == SDLK_j) {
+              currentPiece.PieceLeftMove();
+              if (!gBoard.IsPosibleMove(currentPiece))
+                currentPiece.PieceRightMove();
+            }
+            if (e.key.keysym.sym == SDLK_k) {
+              currentPiece.PieceDownMove();
+              if (!gBoard.IsPosibleMove(currentPiece))
+                currentPiece.PieceUpMove();
+            }
+            if (e.key.keysym.sym == SDLK_l) {
+              currentPiece.PieceRightMove();
+              if (!gBoard.IsPosibleMove(currentPiece))
+                currentPiece.PieceLeftMove();
+            }
+            if (e.key.keysym.sym == SDLK_z) {
+              currentPiece.PieceCCWRotateMove();
+              if (!gBoard.IsPosibleMove(currentPiece))
+                currentPiece.PieceCWRotateMove();
+            }
+            if (e.key.keysym.sym == SDLK_x) {
+              currentPiece.PieceCWRotateMove();
+              if (!gBoard.IsPosibleMove(currentPiece))
+                currentPiece.PieceCCWRotateMove();
+            }
+            if (e.key.keysym.sym == SDLK_a) {
+              currentPiece.PieceFlipMove();
+              if (!gBoard.IsPosibleMove(currentPiece))
+                currentPiece.PieceFlipMove();
+            }
+            if (e.key.keysym.sym == SDLK_SPACE) {
+              currentPiece.PieceDropMove();
+              moveTime = SDL_GetTicks();
+            }
+          }
         }
 
         // piece move
         if (SDL_GetTicks() > moveTime) {
-          moveTime += 300;
+          moveTime += 1000;
           currentPiece.PieceDownMove();
 
           if (!gBoard.IsPosibleMove(currentPiece)) {
             currentPiece.PieceUpMove();
             pieceCount = (pieceCount + 1) % 14;
             gBoard.MergePiece(currentPiece);
-            if (pieceCount == 0) {
-              firstPieceBag();
+            if (pieceCount == 0)
               secondPieceBag();
-            }
+            if (pieceCount == 7)
+              firstPieceBag();
             currentPiece.Init(incomingPiece[pieceCount]);
+
+            gBoard.DeletePosibleRow();
           }
         }
         
