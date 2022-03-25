@@ -9,16 +9,16 @@ bool Board::IsEnded() {
 
 void Board::DeleteRow(int row) {
 	for (int i = row; i > 0; i--)
-		for (int j = 0; j < BOARD_WIDTH; j++)
+		for (int j = 3; j < 13; j++)
 			board[i][j] = board[i - 1][j];
-	for (int i = 0; i < BOARD_WIDTH; i++)
+	for (int i = 3; i < 13; i++)
 		board[0][i] = FREE_BLOCK;
 }
 
 void Board::DeletePosibleRow() {
 	for (int i = 1; i < 23; i ++){
 		bool rowFilled = true;
-		for (int j = 0; j < BOARD_WIDTH; j ++)
+		for (int j = 3; j < 13; j ++)
 			if (board[i][j] == FREE_BLOCK)
 				rowFilled = false;
 		if (rowFilled)
