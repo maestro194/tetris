@@ -1,8 +1,17 @@
 #include "Board.h"
 
+void Board::Reset() {
+	for (int i = 0; i < BOARD_HEIGHT; i++)
+		for (int j = 0; j < BOARD_WIDTH; j++)
+			board[i][j] = CYAN_BLOCK;
+	for(int i = 0; i < 23; i ++)
+		for(int j = 3; j < 13; j ++)
+			board[i][j] = FREE_BLOCK;
+}
+
 bool Board::IsEnded() {
-	for (int i = 1; i < BOARD_WIDTH; i++)
-		if (board[0][i] != FREE_BLOCK)
+	for (int i = 3; i < 13; i++)
+		if (board[1][i] != FREE_BLOCK)
 			return true;
 	return false;
 }
@@ -15,15 +24,25 @@ void Board::DeleteRow(int row) {
 		board[0][i] = FREE_BLOCK;
 }
 
-void Board::DeletePosibleRow() {
+int Board::DeletePosibleRow() {
+	int cnt = 0;
 	for (int i = 1; i < 23; i ++){
 		bool rowFilled = true;
 		for (int j = 3; j < 13; j ++)
 			if (board[i][j] == FREE_BLOCK)
 				rowFilled = false;
 		if (rowFilled)
-			DeleteRow(i);
+			DeleteRow(i), 
+			cnt ++;
 	}
+	// change later
+	if(cnt == 4)
+		cnt = QUAD_CLEAR;
+	else if(cnt == 0)
+		cnt = NO_CLEAR;
+	else
+		cnt = LINE_CLEAR;
+	return cnt;
 }
 
 bool Board::IsPosibleMove(Piece p) {

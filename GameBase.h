@@ -43,7 +43,7 @@ const int BLOCK_HEIGHT = 26;
 // piece
 
 enum PiecesNumbering {
-	RANDOM_PIECE,
+	NO_PIECE,
 	I_PIECE,
 	S_PIECE,
 	J_PIECE,
@@ -66,6 +66,16 @@ enum BlockColor {
 	TOTAL_BLOCK_COLOR
 };
 
+// sfx
+enum SFX{
+	NO_CLEAR,
+	LINE_CLEAR,
+	QUAD_CLEAR,
+	SPIN_CLEAR,
+	ALL_CLEAR,
+	DEFAULT,
+	TOTAL_SFX
+};
 
 void ErrorLog(std::string msg, int error_code);
 

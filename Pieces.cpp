@@ -10,7 +10,7 @@ void Piece::Init(int pieceNumber) {
     for(int j = 0; j < 4; j ++)
       for(int k = 0; k < 4; k ++)
         shape[i][j][k] = ' ';
-  xOffSet = 1;
+  xOffSet = 0;
   yOffSet = 6;
   switch (pieceNumber)
   {
@@ -86,11 +86,15 @@ void Piece::PieceDropMove(){
   
 }
 
-void Piece::PieceCWRotateMove(){
+void Piece::PieceCWRotateMove(int x, int y){
+  xOffSet += x;
+  yOffSet += y;
   rotation = (rotation + 1) % 4;
 }
 
-void Piece::PieceCCWRotateMove(){
+void Piece::PieceCCWRotateMove(int x, int y){
+  xOffSet += x;
+  yOffSet += y;
   rotation = (rotation + 3) % 4;
 }
 

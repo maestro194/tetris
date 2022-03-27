@@ -16,8 +16,8 @@ public:
 	void PieceUpMove();
 	void PieceDownMove();
 	void PieceDropMove();
-	void PieceCWRotateMove();
-	void PieceCCWRotateMove();
+	void PieceCWRotateMove(int x, int y);
+	void PieceCCWRotateMove(int x, int y);
 	void PieceFlipMove();
 
 	void DrawPiece(SDL_Renderer* renderer, Texture gBlock[]);

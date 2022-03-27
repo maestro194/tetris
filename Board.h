@@ -12,8 +12,9 @@ public:
 
 	bool IsEnded();
 
+	void Reset();
 	void DeleteRow(int row);
-	void DeletePosibleRow();
+	int DeletePosibleRow();
 	bool IsPosibleMove(Piece p);
 	void MergePiece(Piece p);
 

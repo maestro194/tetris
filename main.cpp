@@ -39,10 +39,27 @@ SDL_Rect gPlayButtonClip = {515, 450, 250, 100};
 SDL_Rect gHelpButtonClip = {515, 575, 250, 100};
 
 // Pieces
-Piece currentPiece;
+Piece gCurrentPiece;
+Piece gHoldPiece;
+int holdPiece;
 int incomingPiece[15];
 int arrayForRandom[7] = {1,2,3,4,5,6,7};
 int pieceCount;
+bool holdThisTurn;
+int wallKickData[2][4][2][5][2]; // [pieceType][rotation][next_rotation][test][x, y];
+
+// SFX
+int musicFlag; // change to Mix_Chunk soon
+Mix_Chunk* gLineClear; // worked
+Mix_Chunk* gLineClearQuad;
+Mix_Chunk* gLineClearSpin; // added
+Mix_Chunk* gCombo[16];
+Mix_Chunk* gHardDrop;
+Mix_Chunk* gHold;
+Mix_Chunk* gMenu[3];
+Mix_Chunk* gRotate;
+Mix_Chunk* gSpin;
+Mix_Chunk* gTopOut; // worked
 
 // Pre-declared Function
 bool Init();
@@ -85,10 +102,11 @@ int main(int argc, char* argv[]) {
     if (gPlayButton.buttonSprite == BUTTON_DOWN) { // game started
       // game value initialization
       pieceCount = 0;
+      holdPiece = NO_PIECE;
       firstPieceBag();
       secondPieceBag();
       moveTime = SDL_GetTicks();
-      currentPiece.Init(incomingPiece[pieceCount]);
+      gCurrentPiece.Init(incomingPiece[pieceCount]);
 
       while (GameRunning) {
         while (SDL_PollEvent(&e)) {
@@ -96,54 +114,129 @@ int main(int argc, char* argv[]) {
             GameRunning = false, HomeRunning = false;
           if (e.type == SDL_KEYDOWN) {
             if (e.key.keysym.sym == SDLK_j) {
-              currentPiece.PieceLeftMove();
-              if (!gBoard.IsPosibleMove(currentPiece))
-                currentPiece.PieceRightMove();
+              gCurrentPiece.PieceLeftMove();
+              if (!gBoard.IsPosibleMove(gCurrentPiece))
+                gCurrentPiece.PieceRightMove();
             }
             if (e.key.keysym.sym == SDLK_k) {
-              currentPiece.PieceDownMove();
-              if (!gBoard.IsPosibleMove(currentPiece))
-                currentPiece.PieceUpMove();
+              gCurrentPiece.PieceDownMove();
+              if (!gBoard.IsPosibleMove(gCurrentPiece))
+                gCurrentPiece.PieceUpMove();
             }
             if (e.key.keysym.sym == SDLK_l) {
-              currentPiece.PieceRightMove();
-              if (!gBoard.IsPosibleMove(currentPiece))
-                currentPiece.PieceLeftMove();
+              gCurrentPiece.PieceRightMove();
+              if (!gBoard.IsPosibleMove(gCurrentPiece))
+                gCurrentPiece.PieceLeftMove();
             }
             if (e.key.keysym.sym == SDLK_z) {
-              currentPiece.PieceCCWRotateMove();
-              if (!gBoard.IsPosibleMove(currentPiece))
-                currentPiece.PieceCWRotateMove();
+              if(gCurrentPiece.pieceType == O_PIECE) {
+                gCurrentPiece.PieceCCWRotateMove(0, 0);
+                if (!gBoard.IsPosibleMove(gCurrentPiece))
+                  gCurrentPiece.PieceCWRotateMove(0, 0);
+              }
+              // else if(gCurrentPiece.pieceType == I_PIECE) {
+              //   gCurrentPiece.PieceCCWRotateMove(0, 0);
+              //   if (!gBoard.IsPosibleMove(gCurrentPiece))
+              //     gCurrentPiece.PieceCWRotateMove(0, 0);
+              // }
+              // else {
+              //   gCurrentPiece.PieceCCWRotateMove();
+              //   if (!gBoard.IsPosibleMove(gCurrentPiece))
+              //     gCurrentPiece.PieceCWRotateMove();
+              // }
             }
             if (e.key.keysym.sym == SDLK_x) {
-              currentPiece.PieceCWRotateMove();
-              if (!gBoard.IsPosibleMove(currentPiece))
-                currentPiece.PieceCCWRotateMove();
+              int xKick, yKick;
+              if(gCurrentPiece.pieceType == O_PIECE) {
+                gCurrentPiece.PieceCWRotateMove(0, 0);
+              if (!gBoard.IsPosibleMove(gCurrentPiece))
+                gCurrentPiece.PieceCCWRotateMove(0, 0);
+              }
+              else if(gCurrentPiece.pieceType == I_PIECE) {
+                
+              }
+              else {
+                for(int i = 0; i < 5; i ++) {
+                  xKick = wallKickData[0][gCurrentPiece.rotation][0][i][0];
+                  yKick = wallKickData[0][gCurrentPiece.rotation][0][i][1];
+                  gCurrentPiece.PieceCWRotateMove(xKick, yKick);
+                  if(!gBoard.IsPosibleMove(gCurrentPiece))
+                    gCurrentPiece.PieceCCWRotateMove(-xKick, -yKick);
+                  else  
+                    break;
+                }
+              }
             }
             if (e.key.keysym.sym == SDLK_a) {
-              currentPiece.PieceFlipMove();
-              if (!gBoard.IsPosibleMove(currentPiece))
-                currentPiece.PieceFlipMove();
+              gCurrentPiece.PieceFlipMove();
+              if (!gBoard.IsPosibleMove(gCurrentPiece))
+                gCurrentPiece.PieceFlipMove();
             }
             if (e.key.keysym.sym == SDLK_SPACE) {
               do{
-                currentPiece.PieceDownMove();
-              }while(gBoard.IsPosibleMove(currentPiece));
-              currentPiece.PieceUpMove();
+                gCurrentPiece.PieceDownMove();
+              }while(gBoard.IsPosibleMove(gCurrentPiece));
+              gCurrentPiece.PieceUpMove();
+              holdThisTurn = 0;
               moveTime = SDL_GetTicks();
 
               pieceCount = (pieceCount + 1) % 14;
-              gBoard.MergePiece(currentPiece);
+              gBoard.MergePiece(gCurrentPiece);
               if (pieceCount == 0)
                 secondPieceBag();
               if (pieceCount == 7)
                 firstPieceBag();
-              currentPiece.Init(incomingPiece[pieceCount]);
+              gCurrentPiece.Init(incomingPiece[pieceCount]);
 
-              gBoard.DeletePosibleRow();
+              musicFlag = gBoard.DeletePosibleRow();
+              
+              switch (musicFlag)
+              {
+                case NO_CLEAR:
+                  Mix_PlayChannel(-1, gHardDrop, 0);
+                  break;
+                case LINE_CLEAR:
+                  Mix_PlayChannel(-1, gLineClear, 0);
+                  break;
+                case QUAD_CLEAR:
+                  Mix_PlayChannel(-1, gLineClearQuad, 0);
+                  break;
+                case SPIN_CLEAR:
+                  break;
+                case ALL_CLEAR:
+                  break;
+                default:
+                  break;
+              } 
             }
-            if (e.key.keysym.sym == SDLK_LSHIFT) {
+            if (e.key.keysym.sym == SDLK_LSHIFT && !holdThisTurn) { // hold piece
+              // play hold sound
+              Mix_PlayChannel(-1, gHold, 0);
+              musicFlag = DEFAULT;
 
+              holdThisTurn = 1;
+
+              if(holdPiece == NO_PIECE) {
+                holdPiece = gCurrentPiece.pieceType;
+                gHoldPiece.Init(holdPiece);
+                moveTime = SDL_GetTicks();
+
+                pieceCount = (pieceCount + 1) % 14;
+                if (pieceCount == 0)
+                  secondPieceBag();
+                if (pieceCount == 7)
+                  firstPieceBag();
+                gCurrentPiece.Init(incomingPiece[pieceCount]);
+              }
+              else {
+                swap(incomingPiece[pieceCount], holdPiece);
+                gHoldPiece.Init(holdPiece);
+                moveTime = SDL_GetTicks();
+
+                gCurrentPiece.Init(incomingPiece[pieceCount]);
+              }
+              gHoldPiece.xOffSet = 4;
+              gHoldPiece.yOffSet = -2;
             }
           }
         }
@@ -151,19 +244,43 @@ int main(int argc, char* argv[]) {
         // piece move
         if (SDL_GetTicks() > moveTime) {
           moveTime += 1000;
-          currentPiece.PieceDownMove();
+          gCurrentPiece.PieceDownMove();
 
-          if (!gBoard.IsPosibleMove(currentPiece)) {
-            currentPiece.PieceUpMove();
+          if (!gBoard.IsPosibleMove(gCurrentPiece)) {
+            gCurrentPiece.PieceUpMove();
+            holdThisTurn = 0;
             pieceCount = (pieceCount + 1) % 14;
-            gBoard.MergePiece(currentPiece);
+            gBoard.MergePiece(gCurrentPiece);
             if (pieceCount == 0)
               secondPieceBag();
             if (pieceCount == 7)
               firstPieceBag();
-            currentPiece.Init(incomingPiece[pieceCount]);
+            gCurrentPiece.Init(incomingPiece[pieceCount]);
 
-            gBoard.DeletePosibleRow();
+            musicFlag = gBoard.DeletePosibleRow();
+            switch (musicFlag)
+            {
+              case NO_CLEAR:
+                Mix_PlayChannel(-1, gHardDrop, 0);
+                break;
+              case LINE_CLEAR:
+                Mix_PlayChannel(-1, gLineClear, 0);
+                break;
+              case QUAD_CLEAR:
+                Mix_PlayChannel(-1, gLineClearQuad, 0);
+                break;
+              case SPIN_CLEAR:
+                break;
+              case ALL_CLEAR:
+                break;
+              default:
+                break;
+            } 
+
+            if(gBoard.IsEnded()){
+              GameRunning = false;
+              Mix_PlayChannel(-1, gTopOut, 0);
+            }
           }
         }
         
@@ -184,12 +301,21 @@ int main(int argc, char* argv[]) {
           SDL_RenderDrawLine(gRenderer, 483, 82 + 26 * i, 743, 82 + 26 * i);
         
         // draw current piece on the board
-        currentPiece.DrawPiece(gRenderer, gBlock);
+        gCurrentPiece.DrawPiece(gRenderer, gBlock);
+        
+        // draw the hold piece
+        if(holdPiece != 0)
+          gHoldPiece.DrawPiece(gRenderer, gBlock);
+
+        // draw the next 5 piece (soon)
+        
+        // present the window
         SDL_RenderPresent(gRenderer);
       }
 
       // reset the game (code soon)
       GameRunning = true;
+      gBoard.Reset();
       gPlayButton.buttonSprite = BUTTON_DEFAULT;
     }
   }
@@ -244,6 +370,65 @@ bool Init() {
   gBlock[5].LoadTextureFromFile("images/block_pink.png", gRenderer);
   gBlock[6].LoadTextureFromFile("images/block_red.png", gRenderer);
   gBlock[7].LoadTextureFromFile("images/block_yellow.png", gRenderer);
+
+  gLineClear = Mix_LoadWAV("sfx/clearline.wav");
+  gLineClearQuad = Mix_LoadWAV("sfx/clearquad.wav");
+  gLineClearSpin = Mix_LoadWAV("sfx/clearspin.wav");
+  gHardDrop = Mix_LoadWAV("sfx/harddrop.wav");
+  gHold = Mix_LoadWAV("sfx/hold.wav");
+  gTopOut = Mix_LoadWAV("sfx/topout.wav");
+
+  // JLSZT piece wall kick data
+  // 0 -> R
+  wallKickData[0][0][0][0][0] = 0 , wallKickData[0][0][0][0][1] =  0;
+  wallKickData[0][0][0][1][0] = 0 , wallKickData[0][0][0][1][1] = -1;
+  wallKickData[0][0][0][2][0] = 1 , wallKickData[0][0][0][2][1] = -1;
+  wallKickData[0][0][0][3][0] = -2, wallKickData[0][0][0][3][1] =  0;
+  wallKickData[0][0][0][4][0] = -2, wallKickData[0][0][0][4][1] = -1;
+  // R -> 0
+  wallKickData[0][1][1][0][0] = 0 , wallKickData[0][1][1][0][1] =  0;
+  wallKickData[0][1][1][1][0] = 0 , wallKickData[0][1][1][1][1] =  1;
+  wallKickData[0][1][1][2][0] = -1, wallKickData[0][1][1][2][1] =  1;
+  wallKickData[0][1][1][3][0] = 2 , wallKickData[0][1][1][3][1] =  0;
+  wallKickData[0][1][1][4][0] = 2 , wallKickData[0][1][1][4][1] =  1;
+  // R -> 2
+  wallKickData[0][1][0][0][0] = 0 , wallKickData[0][1][0][0][1] = 0;
+  wallKickData[0][1][0][1][0] = 0 , wallKickData[0][1][0][1][1] = 1;
+  wallKickData[0][1][0][2][0] = -1, wallKickData[0][1][0][2][1] = 1;
+  wallKickData[0][1][0][3][0] = 2 , wallKickData[0][1][0][3][1] = 0;
+  wallKickData[0][1][0][4][0] = 2 , wallKickData[0][1][0][4][1] = 1;
+  // 2 -> R
+  wallKickData[0][2][1][0][0] = 0 , wallKickData[0][2][1][0][1] =  0;
+  wallKickData[0][2][1][1][0] = 0 , wallKickData[0][2][1][1][1] = -1;
+  wallKickData[0][2][1][2][0] = 1 , wallKickData[0][2][1][2][1] = -1;
+  wallKickData[0][2][1][3][0] = -2, wallKickData[0][2][1][3][1] =  0;
+  wallKickData[0][2][1][4][0] = -2, wallKickData[0][2][1][4][1] = -1;
+  // 2 -> L
+  wallKickData[0][2][0][0][0] = 0 , wallKickData[0][2][0][0][1] = 0;
+  wallKickData[0][2][0][1][0] = 0 , wallKickData[0][2][0][1][1] = 1;
+  wallKickData[0][2][0][2][0] = 1 , wallKickData[0][2][0][2][1] = 1;
+  wallKickData[0][2][0][3][0] = -2, wallKickData[0][2][0][3][1] = 0;
+  wallKickData[0][2][0][4][0] = -2, wallKickData[0][2][0][4][1] = 1;
+  // L -> 2
+  wallKickData[0][3][1][0][0] = 0 , wallKickData[0][3][1][0][1] =  0;
+  wallKickData[0][3][1][1][0] = 0 , wallKickData[0][3][1][1][1] = -1;
+  wallKickData[0][3][1][2][0] = -1, wallKickData[0][3][1][2][1] = -1;
+  wallKickData[0][3][1][3][0] = 2 , wallKickData[0][3][1][3][1] =  0;
+  wallKickData[0][3][1][4][0] = 2 , wallKickData[0][3][1][4][1] = -1;
+  // L -> 0
+  wallKickData[0][3][0][0][0] = 0 , wallKickData[0][3][0][0][1] =  0;
+  wallKickData[0][3][0][1][0] = 0 , wallKickData[0][3][0][1][1] = -1;
+  wallKickData[0][3][0][2][0] = -1, wallKickData[0][3][0][2][1] = -1;
+  wallKickData[0][3][0][3][0] = 2 , wallKickData[0][3][0][3][1] =  0;
+  wallKickData[0][3][0][4][0] = 2 , wallKickData[0][3][0][4][1] = -1;
+  // 0 -> L
+  wallKickData[0][0][1][0][0] = 0 , wallKickData[0][0][1][0][1] = 0;
+  wallKickData[0][0][1][1][0] = 0 , wallKickData[0][0][1][1][1] = 1;
+  wallKickData[0][0][1][2][0] = 1 , wallKickData[0][0][1][2][1] = 1;
+  wallKickData[0][0][1][3][0] = -2, wallKickData[0][0][1][3][1] = 0;
+  wallKickData[0][0][1][4][0] = -2, wallKickData[0][0][1][4][1] = 1;
+  
+  // I piece wall kick data
   
   return success;
 }
@@ -268,6 +453,13 @@ void Close() {
     gHelpButtonTex[i].FreeTexture();
   for(int i = 0; i < TOTAL_BLOCK_COLOR; i ++)
     gBlock[i].FreeTexture();
+  
+  Mix_FreeChunk(gLineClear);
+  Mix_FreeChunk(gLineClearQuad);
+  Mix_FreeChunk(gLineClearSpin);
+  Mix_FreeChunk(gHardDrop);
+  Mix_FreeChunk(gHold);
+  Mix_FreeChunk(gTopOut);
 
   SDL_DestroyWindow(gWindow);
   gWindow = NULL;
