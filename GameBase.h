@@ -78,5 +78,6 @@ enum SFX{
 };
 
 void ErrorLog(std::string msg, int error_code);
+void InitWallKickData();
 
 #endif

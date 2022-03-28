@@ -11,7 +11,7 @@ void Board::Reset() {
 
 bool Board::IsEnded() {
 	for (int i = 3; i < 13; i++)
-		if (board[1][i] != FREE_BLOCK)
+		if (board[0][i] != FREE_BLOCK)
 			return true;
 	return false;
 }
@@ -48,7 +48,7 @@ int Board::DeletePosibleRow() {
 bool Board::IsPosibleMove(Piece p) {
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
-			if (p.shape[p.rotation][i][j] == '*') {
+			if (p.shape[p.rotation][i][j] == 1) {
 				int x = i + p.xOffSet, y = j + p.yOffSet;
 				if (board[x][y] != FREE_BLOCK)
 					return false;
@@ -59,7 +59,7 @@ bool Board::IsPosibleMove(Piece p) {
 void Board::MergePiece(Piece p) {
 	for(int i = 0; i < 4; i ++)
 		for(int j = 0; j < 4; j ++)
-			if(p.shape[p.rotation][i][j] == '*'){
+			if(p.shape[p.rotation][i][j] == 1){
 				int x = i + p.xOffSet, y = j + p.yOffSet;
 				board[x][y] = p.pieceType;
 			}

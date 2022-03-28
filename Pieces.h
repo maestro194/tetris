@@ -26,7 +26,7 @@ public:
 	int rotation;
 	int xOffSet;
 	int yOffSet;
-	char shape[4][4][4];
+	bool shape[4][4][4];
 private:
 	
 };

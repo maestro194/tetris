@@ -41,12 +41,14 @@ SDL_Rect gHelpButtonClip = {515, 575, 250, 100};
 // Pieces
 Piece gCurrentPiece;
 Piece gHoldPiece;
+Piece gNextPiece[3];
 int holdPiece;
 int incomingPiece[15];
 int arrayForRandom[7] = {1,2,3,4,5,6,7};
 int pieceCount;
 bool holdThisTurn;
-int wallKickData[2][4][2][5][2]; // [pieceType][rotation][next_rotation][test][x, y];
+int wallKickData[2][4][2][5][2];
+// [pieceType(else, I)][rotation(0->3)][next_rotation(CW, CCW)][test(0->4)][x, y];
 
 // SFX
 int musicFlag; // change to Mix_Chunk soon
@@ -67,6 +69,7 @@ void firstPieceBag();
 void secondPieceBag();
 void DrawPreviewPiece();
 void DrawHoldPiece();
+void InitWallKick();
 void Close();
 
 int main(int argc, char* argv[]) {
@@ -134,31 +137,39 @@ int main(int argc, char* argv[]) {
                 if (!gBoard.IsPosibleMove(gCurrentPiece))
                   gCurrentPiece.PieceCWRotateMove(0, 0);
               }
-              // else if(gCurrentPiece.pieceType == I_PIECE) {
-              //   gCurrentPiece.PieceCCWRotateMove(0, 0);
-              //   if (!gBoard.IsPosibleMove(gCurrentPiece))
-              //     gCurrentPiece.PieceCWRotateMove(0, 0);
-              // }
-              // else {
-              //   gCurrentPiece.PieceCCWRotateMove();
-              //   if (!gBoard.IsPosibleMove(gCurrentPiece))
-              //     gCurrentPiece.PieceCWRotateMove();
-              // }
+              else if(gCurrentPiece.pieceType == I_PIECE) {
+                gCurrentPiece.PieceCCWRotateMove(0, 0);
+                if (!gBoard.IsPosibleMove(gCurrentPiece))
+                  gCurrentPiece.PieceCWRotateMove(0, 0);
+              }
+              else {
+                gCurrentPiece.PieceCCWRotateMove(0, 0);
+                if (!gBoard.IsPosibleMove(gCurrentPiece))
+                  gCurrentPiece.PieceCWRotateMove(0, 0);
+              }
             }
             if (e.key.keysym.sym == SDLK_x) {
               int xKick, yKick;
               if(gCurrentPiece.pieceType == O_PIECE) {
                 gCurrentPiece.PieceCWRotateMove(0, 0);
-              if (!gBoard.IsPosibleMove(gCurrentPiece))
-                gCurrentPiece.PieceCCWRotateMove(0, 0);
+                if (!gBoard.IsPosibleMove(gCurrentPiece))
+                  gCurrentPiece.PieceCCWRotateMove(0, 0);
               }
               else if(gCurrentPiece.pieceType == I_PIECE) {
-                
+                for(int i = 0; i < 5; i ++) {
+                  xKick = wallKickData[1][gCurrentPiece.rotation][0][i][0];
+                  yKick = wallKickData[1][gCurrentPiece.rotation][0][i][1];
+                  gCurrentPiece.PieceCWRotateMove(xKick, yKick);
+                  if (!gBoard.IsPosibleMove(gCurrentPiece))
+                    gCurrentPiece.PieceCCWRotateMove(-xKick, -yKick);
+                  else
+                    break;
+                }
               }
               else {
                 for(int i = 0; i < 5; i ++) {
                   xKick = wallKickData[0][gCurrentPiece.rotation][0][i][0];
-                  yKick = wallKickData[0][gCurrentPiece.rotation][0][i][1];
+                  yKick = wallKickData[0][gCurrentPiece.rotation][0][i][1];   
                   gCurrentPiece.PieceCWRotateMove(xKick, yKick);
                   if(!gBoard.IsPosibleMove(gCurrentPiece))
                     gCurrentPiece.PieceCCWRotateMove(-xKick, -yKick);
@@ -307,7 +318,7 @@ int main(int argc, char* argv[]) {
         if(holdPiece != 0)
           gHoldPiece.DrawPiece(gRenderer, gBlock);
 
-        // draw the next 5 piece (soon)
+        // draw the next 3 piece (soon)
         
         // present the window
         SDL_RenderPresent(gRenderer);
@@ -378,57 +389,7 @@ bool Init() {
   gHold = Mix_LoadWAV("sfx/hold.wav");
   gTopOut = Mix_LoadWAV("sfx/topout.wav");
 
-  // JLSZT piece wall kick data
-  // 0 -> R
-  wallKickData[0][0][0][0][0] = 0 , wallKickData[0][0][0][0][1] =  0;
-  wallKickData[0][0][0][1][0] = 0 , wallKickData[0][0][0][1][1] = -1;
-  wallKickData[0][0][0][2][0] = 1 , wallKickData[0][0][0][2][1] = -1;
-  wallKickData[0][0][0][3][0] = -2, wallKickData[0][0][0][3][1] =  0;
-  wallKickData[0][0][0][4][0] = -2, wallKickData[0][0][0][4][1] = -1;
-  // R -> 0
-  wallKickData[0][1][1][0][0] = 0 , wallKickData[0][1][1][0][1] =  0;
-  wallKickData[0][1][1][1][0] = 0 , wallKickData[0][1][1][1][1] =  1;
-  wallKickData[0][1][1][2][0] = -1, wallKickData[0][1][1][2][1] =  1;
-  wallKickData[0][1][1][3][0] = 2 , wallKickData[0][1][1][3][1] =  0;
-  wallKickData[0][1][1][4][0] = 2 , wallKickData[0][1][1][4][1] =  1;
-  // R -> 2
-  wallKickData[0][1][0][0][0] = 0 , wallKickData[0][1][0][0][1] = 0;
-  wallKickData[0][1][0][1][0] = 0 , wallKickData[0][1][0][1][1] = 1;
-  wallKickData[0][1][0][2][0] = -1, wallKickData[0][1][0][2][1] = 1;
-  wallKickData[0][1][0][3][0] = 2 , wallKickData[0][1][0][3][1] = 0;
-  wallKickData[0][1][0][4][0] = 2 , wallKickData[0][1][0][4][1] = 1;
-  // 2 -> R
-  wallKickData[0][2][1][0][0] = 0 , wallKickData[0][2][1][0][1] =  0;
-  wallKickData[0][2][1][1][0] = 0 , wallKickData[0][2][1][1][1] = -1;
-  wallKickData[0][2][1][2][0] = 1 , wallKickData[0][2][1][2][1] = -1;
-  wallKickData[0][2][1][3][0] = -2, wallKickData[0][2][1][3][1] =  0;
-  wallKickData[0][2][1][4][0] = -2, wallKickData[0][2][1][4][1] = -1;
-  // 2 -> L
-  wallKickData[0][2][0][0][0] = 0 , wallKickData[0][2][0][0][1] = 0;
-  wallKickData[0][2][0][1][0] = 0 , wallKickData[0][2][0][1][1] = 1;
-  wallKickData[0][2][0][2][0] = 1 , wallKickData[0][2][0][2][1] = 1;
-  wallKickData[0][2][0][3][0] = -2, wallKickData[0][2][0][3][1] = 0;
-  wallKickData[0][2][0][4][0] = -2, wallKickData[0][2][0][4][1] = 1;
-  // L -> 2
-  wallKickData[0][3][1][0][0] = 0 , wallKickData[0][3][1][0][1] =  0;
-  wallKickData[0][3][1][1][0] = 0 , wallKickData[0][3][1][1][1] = -1;
-  wallKickData[0][3][1][2][0] = -1, wallKickData[0][3][1][2][1] = -1;
-  wallKickData[0][3][1][3][0] = 2 , wallKickData[0][3][1][3][1] =  0;
-  wallKickData[0][3][1][4][0] = 2 , wallKickData[0][3][1][4][1] = -1;
-  // L -> 0
-  wallKickData[0][3][0][0][0] = 0 , wallKickData[0][3][0][0][1] =  0;
-  wallKickData[0][3][0][1][0] = 0 , wallKickData[0][3][0][1][1] = -1;
-  wallKickData[0][3][0][2][0] = -1, wallKickData[0][3][0][2][1] = -1;
-  wallKickData[0][3][0][3][0] = 2 , wallKickData[0][3][0][3][1] =  0;
-  wallKickData[0][3][0][4][0] = 2 , wallKickData[0][3][0][4][1] = -1;
-  // 0 -> L
-  wallKickData[0][0][1][0][0] = 0 , wallKickData[0][0][1][0][1] = 0;
-  wallKickData[0][0][1][1][0] = 0 , wallKickData[0][0][1][1][1] = 1;
-  wallKickData[0][0][1][2][0] = 1 , wallKickData[0][0][1][2][1] = 1;
-  wallKickData[0][0][1][3][0] = -2, wallKickData[0][0][1][3][1] = 0;
-  wallKickData[0][0][1][4][0] = -2, wallKickData[0][0][1][4][1] = 1;
-  
-  // I piece wall kick data
+  InitWallKick();
   
   return success;
 }
@@ -443,6 +404,108 @@ void secondPieceBag() {
   random_shuffle(arrayForRandom, arrayForRandom + 7);
   for (int i = 7; i < 14; i++)
     incomingPiece[i] = arrayForRandom[i - 7];
+}
+
+void InitWallKick() {
+  // JLSZT piece wall kick data
+  // 0 -> R
+  wallKickData[0][0][0][0][0] =  0, wallKickData[0][0][0][0][1] =  0;
+  wallKickData[0][0][0][1][0] =  0, wallKickData[0][0][0][1][1] = -1;
+  wallKickData[0][0][0][2][0] = -1, wallKickData[0][0][0][2][1] = -1;
+  wallKickData[0][0][0][3][0] =  2, wallKickData[0][0][0][3][1] =  0;
+  wallKickData[0][0][0][4][0] =  2, wallKickData[0][0][0][4][1] = -1;
+  // R -> 0
+  wallKickData[0][1][1][0][0] =  0, wallKickData[0][1][1][0][1] =  0;
+  wallKickData[0][1][1][1][0] =  0, wallKickData[0][1][1][1][1] =  1;
+  wallKickData[0][1][1][2][0] =  1, wallKickData[0][1][1][2][1] =  1;
+  wallKickData[0][1][1][3][0] = -2, wallKickData[0][1][1][3][1] =  0;
+  wallKickData[0][1][1][4][0] = -2, wallKickData[0][1][1][4][1] =  1;
+  // R -> 2
+  wallKickData[0][1][0][0][0] =  0, wallKickData[0][1][0][0][1] = 0;
+  wallKickData[0][1][0][1][0] =  0, wallKickData[0][1][0][1][1] = 1;
+  wallKickData[0][1][0][2][0] =  1, wallKickData[0][1][0][2][1] = 1;
+  wallKickData[0][1][0][3][0] = -2, wallKickData[0][1][0][3][1] = 0;
+  wallKickData[0][1][0][4][0] = -2, wallKickData[0][1][0][4][1] = 1;
+  // 2 -> R
+  wallKickData[0][2][1][0][0] =  0, wallKickData[0][2][1][0][1] =  0;
+  wallKickData[0][2][1][1][0] =  0, wallKickData[0][2][1][1][1] = -1;
+  wallKickData[0][2][1][2][0] = -1, wallKickData[0][2][1][2][1] = -1;
+  wallKickData[0][2][1][3][0] =  2, wallKickData[0][2][1][3][1] =  0;
+  wallKickData[0][2][1][4][0] =  2, wallKickData[0][2][1][4][1] = -1;
+  // 2 -> L
+  wallKickData[0][2][0][0][0] =  0, wallKickData[0][2][0][0][1] = 0;
+  wallKickData[0][2][0][1][0] =  0, wallKickData[0][2][0][1][1] = 1;
+  wallKickData[0][2][0][2][0] = -1, wallKickData[0][2][0][2][1] = 1;
+  wallKickData[0][2][0][3][0] =  2, wallKickData[0][2][0][3][1] = 0;
+  wallKickData[0][2][0][4][0] =  2, wallKickData[0][2][0][4][1] = 1;
+  // L -> 2
+  wallKickData[0][3][1][0][0] =  0, wallKickData[0][3][1][0][1] =  0;
+  wallKickData[0][3][1][1][0] =  0, wallKickData[0][3][1][1][1] = -1;
+  wallKickData[0][3][1][2][0] =  1, wallKickData[0][3][1][2][1] = -1;
+  wallKickData[0][3][1][3][0] = -2, wallKickData[0][3][1][3][1] =  0;
+  wallKickData[0][3][1][4][0] = -2, wallKickData[0][3][1][4][1] = -1;
+  // L -> 0
+  wallKickData[0][3][0][0][0] =  0, wallKickData[0][3][0][0][1] =  0;
+  wallKickData[0][3][0][1][0] =  0, wallKickData[0][3][0][1][1] = -1;
+  wallKickData[0][3][0][2][0] =  1, wallKickData[0][3][0][2][1] = -1;
+  wallKickData[0][3][0][3][0] = -2, wallKickData[0][3][0][3][1] =  0;
+  wallKickData[0][3][0][4][0] = -2, wallKickData[0][3][0][4][1] = -1;
+  // 0 -> L
+  wallKickData[0][0][1][0][0] =  0, wallKickData[0][0][1][0][1] = 0;
+  wallKickData[0][0][1][1][0] =  0, wallKickData[0][0][1][1][1] = 1;
+  wallKickData[0][0][1][2][0] = -1, wallKickData[0][0][1][2][1] = 1;
+  wallKickData[0][0][1][3][0] =  2, wallKickData[0][0][1][3][1] = 0;
+  wallKickData[0][0][1][4][0] =  2, wallKickData[0][0][1][4][1] = 1;
+  
+  // I piece wall kick data
+  // 0 -> R
+  wallKickData[1][0][0][0][0] =  0, wallKickData[1][0][0][0][1] =  0;
+  wallKickData[1][0][0][1][0] =  0, wallKickData[1][0][0][1][1] = -2;
+  wallKickData[1][0][0][2][0] =  0, wallKickData[1][0][0][2][1] =  1;
+  wallKickData[1][0][0][3][0] =  1, wallKickData[1][0][0][3][1] = -2;
+  wallKickData[1][0][0][4][0] = -2, wallKickData[1][0][0][4][1] =  1;
+  // R -> 0
+  wallKickData[1][1][1][0][0] =  0, wallKickData[1][1][1][0][1] =  0;
+  wallKickData[1][1][1][1][0] =  0, wallKickData[1][1][1][1][1] =  2;
+  wallKickData[1][1][1][2][0] =  0, wallKickData[1][1][1][2][1] = -1;
+  wallKickData[1][1][1][3][0] = -1, wallKickData[1][1][1][3][1] =  2;
+  wallKickData[1][1][1][4][0] =  2, wallKickData[1][1][1][4][1] = -1;
+  // R -> 2 // fix y
+  wallKickData[1][1][0][0][0] =  0, wallKickData[1][1][0][0][1] =  0;
+  wallKickData[1][1][0][1][0] =  0, wallKickData[1][1][0][1][1] = -1;
+  wallKickData[1][1][0][2][0] =  0, wallKickData[1][1][0][2][1] =  2;
+  wallKickData[1][1][0][3][0] = -2, wallKickData[1][1][0][3][1] = -1;
+  wallKickData[1][1][0][4][0] =  1, wallKickData[1][1][0][4][1] =  2;
+  // 2 -> R
+  wallKickData[1][2][1][0][0] =  0, wallKickData[1][2][1][0][1] =  0;
+  wallKickData[1][2][1][1][0] =  0, wallKickData[1][2][1][1][1] =  1;
+  wallKickData[1][2][1][2][0] =  0, wallKickData[1][2][1][2][1] = -2;
+  wallKickData[1][2][1][3][0] =  2, wallKickData[1][2][1][3][1] =  1;
+  wallKickData[1][2][1][4][0] = -1, wallKickData[1][2][1][4][1] = -2;
+  // 2 -> L
+  wallKickData[1][2][0][0][0] =  0, wallKickData[1][2][0][0][1] =  0;
+  wallKickData[1][2][0][1][0] =  0, wallKickData[1][2][0][1][1] =  2;
+  wallKickData[1][2][0][2][0] =  0, wallKickData[1][2][0][2][1] = -1;
+  wallKickData[1][2][0][3][0] = -1, wallKickData[1][2][0][3][1] =  2;
+  wallKickData[1][2][0][4][0] =  2, wallKickData[1][2][0][4][1] = -1;
+  // L -> 2
+  wallKickData[1][3][1][0][0] =  0, wallKickData[1][3][1][0][1] =  0;
+  wallKickData[1][3][1][1][0] =  0, wallKickData[1][3][1][1][1] = -2;
+  wallKickData[1][3][1][2][0] =  0, wallKickData[1][3][1][2][1] =  1;
+  wallKickData[1][3][1][3][0] =  1, wallKickData[1][3][1][3][1] = -2;
+  wallKickData[1][3][1][4][0] = -2, wallKickData[1][3][1][4][1] =  1;
+  // L -> 0  
+  wallKickData[1][3][0][0][0] =  0, wallKickData[1][3][0][0][1] =  0;
+  wallKickData[1][3][0][1][0] =  0, wallKickData[1][3][0][1][1] =  1;
+  wallKickData[1][3][0][2][0] =  0, wallKickData[1][3][0][2][1] = -2;
+  wallKickData[1][3][0][3][0] =  2, wallKickData[1][3][0][3][1] =  1;
+  wallKickData[1][3][0][4][0] = -1, wallKickData[1][3][0][4][1] = -2;
+  // 0 -> L
+  wallKickData[1][2][0][0][0] =  0, wallKickData[1][2][0][0][1] =  0;
+  wallKickData[1][2][0][1][0] =  0, wallKickData[1][2][0][1][1] = -1;
+  wallKickData[1][2][0][2][0] =  0, wallKickData[1][2][0][2][1] =  2;
+  wallKickData[1][2][0][3][0] = -2, wallKickData[1][2][0][3][1] = -1;
+  wallKickData[1][2][0][4][0] =  1, wallKickData[1][2][0][4][1] =  2;
 }
 
 void Close() {
