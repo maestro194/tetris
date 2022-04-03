@@ -52,12 +52,14 @@ int wallKickData[2][4][2][5][2];
 
 // SFX
 int musicFlag; // change to Mix_Chunk soon
+Mix_Music* gHomeScreenBGM;
+Mix_Music* gGameBGM;
 Mix_Chunk* gLineClear; // worked
-Mix_Chunk* gLineClearQuad;
+Mix_Chunk* gLineClearQuad; // worked
 Mix_Chunk* gLineClearSpin; // added
 Mix_Chunk* gCombo[16];
-Mix_Chunk* gHardDrop;
-Mix_Chunk* gHold;
+Mix_Chunk* gHardDrop; // worked
+Mix_Chunk* gHold; // worked
 Mix_Chunk* gMenu[3];
 Mix_Chunk* gRotate;
 Mix_Chunk* gSpin;
@@ -290,7 +292,6 @@ int main(int argc, char* argv[]) {
 
             if(gBoard.IsEnded()){
               GameRunning = false;
-              Mix_PlayChannel(-1, gTopOut, 0);
             }
           }
         }
@@ -302,12 +303,13 @@ int main(int argc, char* argv[]) {
         gBoard.DrawBoard(gRenderer, gBlock);
         
         // draw the well,  replace with image soon
-        SDL_RenderDrawLine(gRenderer, 483, 82, 483, 602);
-        SDL_RenderDrawLine(gRenderer, 483, 602, 743, 602);
-        SDL_RenderDrawLine(gRenderer, 743, 82, 743, 602);
+
+        //SDL_RenderDrawLine(gRenderer, 483, 82, 483, 602);
+        //SDL_RenderDrawLine(gRenderer, 483, 602, 743, 602);
+        //SDL_RenderDrawLine(gRenderer, 743, 82, 743, 602);
         SDL_SetRenderDrawColor(gRenderer, 128, 128, 128, 128);
         for(int j = 1; j < 10; j ++)
-          SDL_RenderDrawLine(gRenderer, 483 + 26 * j, 82, 483 + 26 * j, 602);
+          SDL_RenderDrawLine(gRenderer, 483 + 26 * j, 82, 483 + 26 * j, 601);
         for(int i = 1; i < 20; i ++)
           SDL_RenderDrawLine(gRenderer, 483, 82 + 26 * i, 743, 82 + 26 * i);
         
@@ -323,6 +325,10 @@ int main(int argc, char* argv[]) {
         // present the window
         SDL_RenderPresent(gRenderer);
       }
+
+      Mix_PlayChannel(-1, gTopOut, 0);
+
+      // game over screen
 
       // reset the game (code soon)
       GameRunning = true;
@@ -369,8 +375,8 @@ bool Init() {
   gPlayButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/play_hovered.png", gRenderer);
   gPlayButtonTex[BUTTON_DOWN].LoadTextureFromFile("images/play_clicked.png", gRenderer);
   gHelpButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/help.png", gRenderer);
-  gHelpButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/play_hovered.png", gRenderer);
-  gHelpButtonTex[BUTTON_DOWN].LoadTextureFromFile("images/play_clicked.png", gRenderer);
+  gHelpButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/help_hovered.png", gRenderer);
+  gHelpButtonTex[BUTTON_DOWN].LoadTextureFromFile("images/help_clicked.png", gRenderer);
 
   gBoardTex.LoadTextureFromFile("images/plain_play_field.png", gRenderer);
 
