@@ -56,13 +56,9 @@ Mix_Music* gHomeScreenBGM;
 Mix_Music* gGameBGM;
 Mix_Chunk* gLineClear; // worked
 Mix_Chunk* gLineClearQuad; // worked
-Mix_Chunk* gLineClearSpin; // added
-Mix_Chunk* gCombo[16];
 Mix_Chunk* gHardDrop; // worked
 Mix_Chunk* gHold; // worked
 Mix_Chunk* gMenu[3];
-Mix_Chunk* gRotate;
-Mix_Chunk* gSpin;
 Mix_Chunk* gTopOut; // worked
 
 // Pre-declared Function
@@ -70,7 +66,6 @@ bool Init();
 void firstPieceBag();
 void secondPieceBag();
 void DrawPreviewPiece();
-void DrawHoldPiece();
 void InitWallKick();
 void Close();
 
@@ -112,23 +107,29 @@ int main(int argc, char* argv[]) {
       secondPieceBag();
       moveTime = SDL_GetTicks();
       gCurrentPiece.Init(incomingPiece[pieceCount]);
+      // preview piece init 
+      for(int i = 0; i < 3; i ++){
+        gNextPiece[i].Init(incomingPiece[pieceCount + 1 + i]);
+        gNextPiece[i].xOffSet = 4 + 4 * i;
+        gNextPiece[i].yOffSet = 14;
+      }
 
       while (GameRunning) {
         while (SDL_PollEvent(&e)) {
           if (e.type == SDL_QUIT)
             GameRunning = false, HomeRunning = false;
           if (e.type == SDL_KEYDOWN) {
-            if (e.key.keysym.sym == SDLK_j) {
+            if (e.key.keysym.sym == SDLK_LEFT) {
               gCurrentPiece.PieceLeftMove();
               if (!gBoard.IsPosibleMove(gCurrentPiece))
                 gCurrentPiece.PieceRightMove();
             }
-            if (e.key.keysym.sym == SDLK_k) {
+            if (e.key.keysym.sym == SDLK_DOWN) {
               gCurrentPiece.PieceDownMove();
               if (!gBoard.IsPosibleMove(gCurrentPiece))
                 gCurrentPiece.PieceUpMove();
             }
-            if (e.key.keysym.sym == SDLK_l) {
+            if (e.key.keysym.sym == SDLK_RIGHT) {
               gCurrentPiece.PieceRightMove();
               if (!gBoard.IsPosibleMove(gCurrentPiece))
                 gCurrentPiece.PieceLeftMove();
@@ -180,7 +181,7 @@ int main(int argc, char* argv[]) {
                 }
               }
             }
-            if (e.key.keysym.sym == SDLK_a) {
+            if (e.key.keysym.sym == SDLK_c) {
               gCurrentPiece.PieceFlipMove();
               if (!gBoard.IsPosibleMove(gCurrentPiece))
                 gCurrentPiece.PieceFlipMove();
@@ -200,6 +201,11 @@ int main(int argc, char* argv[]) {
               if (pieceCount == 7)
                 firstPieceBag();
               gCurrentPiece.Init(incomingPiece[pieceCount]);
+              for(int i = 0; i < 3; i ++){
+                gNextPiece[i].Init(incomingPiece[(pieceCount + 1 + i) % 14]);
+                gNextPiece[i].xOffSet = 4 + 4 * i;
+                gNextPiece[i].yOffSet = 14;
+              }
 
               musicFlag = gBoard.DeletePosibleRow();
               
@@ -213,10 +219,6 @@ int main(int argc, char* argv[]) {
                   break;
                 case QUAD_CLEAR:
                   Mix_PlayChannel(-1, gLineClearQuad, 0);
-                  break;
-                case SPIN_CLEAR:
-                  break;
-                case ALL_CLEAR:
                   break;
                 default:
                   break;
@@ -240,6 +242,11 @@ int main(int argc, char* argv[]) {
                 if (pieceCount == 7)
                   firstPieceBag();
                 gCurrentPiece.Init(incomingPiece[pieceCount]);
+                for(int i = 0; i < 3; i ++){
+                  gNextPiece[i].Init(incomingPiece[(pieceCount + 1 + i) % 14]);
+                  gNextPiece[i].xOffSet = 4 + 4 * i;
+                  gNextPiece[i].yOffSet = 14;
+                }
               }
               else {
                 swap(incomingPiece[pieceCount], holdPiece);
@@ -321,7 +328,9 @@ int main(int argc, char* argv[]) {
           gHoldPiece.DrawPiece(gRenderer, gBlock);
 
         // draw the next 3 piece (soon)
-        
+        for(int i = 0; i < 3; i ++)
+          gNextPiece[i].DrawPiece(gRenderer, gBlock);
+
         // present the window
         SDL_RenderPresent(gRenderer);
       }
@@ -388,9 +397,11 @@ bool Init() {
   gBlock[6].LoadTextureFromFile("images/block_red.png", gRenderer);
   gBlock[7].LoadTextureFromFile("images/block_yellow.png", gRenderer);
 
+  gHomeScreenBGM = Mix_LoadMUS("music/menu_music_Aerial_City_Chika.mp3");
+  gGameBGM = Mix_LoadMUS("music/game_music_Wind_Trial_Chika.mp3");
+
   gLineClear = Mix_LoadWAV("sfx/clearline.wav");
   gLineClearQuad = Mix_LoadWAV("sfx/clearquad.wav");
-  gLineClearSpin = Mix_LoadWAV("sfx/clearspin.wav");
   gHardDrop = Mix_LoadWAV("sfx/harddrop.wav");
   gHold = Mix_LoadWAV("sfx/hold.wav");
   gTopOut = Mix_LoadWAV("sfx/topout.wav");
@@ -523,9 +534,9 @@ void Close() {
   for(int i = 0; i < TOTAL_BLOCK_COLOR; i ++)
     gBlock[i].FreeTexture();
   
+  Mix_FreeMusic(gHomeScreenBGM);
   Mix_FreeChunk(gLineClear);
   Mix_FreeChunk(gLineClearQuad);
-  Mix_FreeChunk(gLineClearSpin);
   Mix_FreeChunk(gHardDrop);
   Mix_FreeChunk(gHold);
   Mix_FreeChunk(gTopOut);
