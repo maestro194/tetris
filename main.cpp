@@ -543,6 +543,7 @@ void Close() {
     gBlock[i].FreeTexture();
   
   Mix_FreeMusic(gHomeScreenBGM);
+  Mix_FreeMusic(gGameBGM);
   Mix_FreeChunk(gLineClear);
   Mix_FreeChunk(gLineClearQuad);
   Mix_FreeChunk(gHardDrop);
