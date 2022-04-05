@@ -52,8 +52,8 @@ int wallKickData[2][4][2][5][2];
 
 // SFX
 int musicFlag; // change to Mix_Chunk soon
-Mix_Music* gHomeScreenBGM;
-Mix_Music* gGameBGM;
+Mix_Music* gHomeScreenBGM = NULL;
+Mix_Music* gGameBGM = NULL;
 Mix_Chunk* gLineClear; // worked
 Mix_Chunk* gLineClearQuad; // worked
 Mix_Chunk* gHardDrop; // worked
@@ -65,7 +65,6 @@ Mix_Chunk* gTopOut; // worked
 bool Init();
 void firstPieceBag();
 void secondPieceBag();
-void DrawPreviewPiece();
 void InitWallKick();
 void Close();
 
@@ -80,6 +79,8 @@ int main(int argc, char* argv[]) {
        GameRunning = true;
   SDL_Event e;
   int cnt = 0;
+
+  Mix_PlayMusic(gHomeScreenBGM, -1);
   
   while (HomeRunning) {
     while (SDL_PollEvent(&e) != 0) {
@@ -100,6 +101,9 @@ int main(int argc, char* argv[]) {
     SDL_RenderPresent(gRenderer);
 
     if (gPlayButton.buttonSprite == BUTTON_DOWN) { // game started
+      // change the music
+      Mix_HaltMusic();
+      Mix_PlayMusic(gGameBGM, -1);
       // game value initialization
       pieceCount = 0;
       holdPiece = NO_PIECE;
@@ -336,6 +340,7 @@ int main(int argc, char* argv[]) {
       }
 
       Mix_PlayChannel(-1, gTopOut, 0);
+      Mix_HaltMusic();
 
       // game over screen
 
@@ -398,7 +403,10 @@ bool Init() {
   gBlock[7].LoadTextureFromFile("images/block_yellow.png", gRenderer);
 
   gHomeScreenBGM = Mix_LoadMUS("music/menu_music_Aerial_City_Chika.mp3");
-  gGameBGM = Mix_LoadMUS("music/game_music_Wind_Trial_Chika.mp3");
+  gGameBGM = Mix_LoadMUS("music/game_music_Wind_Trail_Chika.mp3");
+  if(gGameBGM == NULL)
+    ErrorLog("Cant load the game music: ", MIX_ERROR);
+  
 
   gLineClear = Mix_LoadWAV("sfx/clearline.wav");
   gLineClearQuad = Mix_LoadWAV("sfx/clearquad.wav");
