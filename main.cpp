@@ -1,6 +1,5 @@
 #include "Board.h"
 #include "Button.h"
-#include "Game.h"
 #include "GameBase.h"
 #include "Pieces.h"
 #include "Texture.h"
@@ -17,6 +16,7 @@ Board gBoard;
 
 // Homescreen
 Texture gHomeScreen; // fullscreen
+Texture gHelpScreen; // fullscreen
 Texture gTetrisLogo; // 600x424
 Texture gPlayButtonTex[BUTTON_TOTAL]; // 250x100
 Texture gHelpButtonTex[BUTTON_TOTAL]; // 250x100
@@ -27,6 +27,7 @@ Texture gBoardTex;// 1920x1057
 Texture gBlock[TOTAL_BLOCK_COLOR]; // I L O revL S T Z
 
 SDL_Rect gHomeScreenClip = {0, 0, 1280, 720};
+SDL_Rect gHelpScreenClip = {0, 0, 1280, 720};
 SDL_Rect gTetrisLogoClip = {415, 0, 450, 318};
 SDL_Rect gBoardTexClip = {0, 0, 1280, 720};
 SDL_Rect gBlockClip = {0, 0, BLOCK_WIDTH, BLOCK_HEIGHT};
@@ -123,6 +124,9 @@ int main(int argc, char* argv[]) {
           if (e.type == SDL_QUIT)
             GameRunning = false, HomeRunning = false;
           if (e.type == SDL_KEYDOWN) {
+            if (e.key.keysym.sym == SDLK_ESCAPE) {
+              GameRunning = false, HomeRunning = false;
+            }
             if (e.key.keysym.sym == SDLK_LEFT) {
               gCurrentPiece.PieceLeftMove();
               if (!gBoard.IsPosibleMove(gCurrentPiece))
@@ -349,6 +353,30 @@ int main(int argc, char* argv[]) {
       gBoard.Reset();
       gPlayButton.buttonSprite = BUTTON_DEFAULT;
     }
+
+    if (gHelpButton.buttonSprite == BUTTON_DOWN) {
+      bool HelpRunning = 1;
+
+      while(HelpRunning) {
+        while(SDL_PollEvent(&e)){
+          if(e.type == SDL_QUIT){
+            HelpRunning = 0;
+            HomeRunning = 0;
+          }
+          if(e.type == SDL_KEYDOWN){
+            if(e.key.keysym.sym == SDLK_ESCAPE){
+              HelpRunning = 0;
+            }
+          }
+        }
+
+        SDL_RenderClear(gRenderer);
+        gHelpScreen.Render(gRenderer, 0, 0, &gHelpScreenClip);
+        SDL_RenderPresent(gRenderer);
+      }
+      
+      gHelpButton.buttonSprite = BUTTON_DEFAULT;
+    }
   }
 
   Close();
@@ -383,6 +411,7 @@ bool Init() {
   srand(time(0));
 
   gHomeScreen.LoadTextureFromFile("images/home_screen.png", gRenderer);
+  gHelpScreen.LoadTextureFromFile("images/help_screen.png", gRenderer);
   gTetrisLogo.LoadTextureFromFile("images/tetris_logo.png", gRenderer);
 
   gPlayButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/play.png", gRenderer);
