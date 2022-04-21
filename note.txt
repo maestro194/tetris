@@ -1,0 +1,20 @@
+C:\Users\admin\Desktop\Code\Tetris\tetris\
+
+Mix_Music* gHomeScreenBGM; v
+Mix_Music* gGameBGM; v
+Mix_Chunk* gLineClear;
+Mix_Chunk* gLineClearQuad;
+Mix_Chunk* gHardDrop;
+Mix_Chunk* gHold; 
+Mix_Chunk* gMenu[3];
+Mix_Chunk* gTopOut;
+
+Playfield bg : need image
+Helpscreen des : need image, des instuction
+Game over scene : need image 
+
+
+
+
+
+
