@@ -17,6 +17,7 @@ Board gBoard;
 // Homescreen
 Texture gHomeScreen; // fullscreen
 Texture gHelpScreen; // fullscreen
+Texture gGameOverScreen; // fullscreen
 Texture gTetrisLogo; // 600x424
 Texture gPlayButtonTex[BUTTON_TOTAL]; // 250x100
 Texture gHelpButtonTex[BUTTON_TOTAL]; // 250x100
@@ -29,6 +30,10 @@ Texture gBlock[TOTAL_BLOCK_COLOR]; // I L O revL S T Z
 
 SDL_Rect gHomeScreenClip = {0, 0, 1280, 720};
 SDL_Rect gHelpScreenClip = {10, 10, 1260, 700};
+=======
+SDL_Rect gHelpScreenClip = {0, 0, 1280, 720};
+SDL_Rect gGameOverScreenClip = {0, 0, 1280, 720};
+>>>>>>> 15361bd82aad5c8c7cf8f931eed2e4711ec10806
 SDL_Rect gTetrisLogoClip = {415, 0, 450, 318};
 SDL_Rect gBoardTexClip = {0, 0, 1280, 720};
 SDL_Rect gBlockClip = {0, 0, BLOCK_WIDTH, BLOCK_HEIGHT};
@@ -309,6 +314,20 @@ int main(int argc, char* argv[]) {
             } 
 
             if(gBoard.IsEnded()){
+              bool GameOverRunning = 1;
+              while(GameOverRunning){
+                while(SDL_PollEvent(&e)){
+                  if(e.type == SDL_KEYDOWN){
+                    if(e.key.keysym.sym == SDLK_ESCAPE){
+                      GameOverRunning = 0;
+                    }
+                  }
+                }
+
+                SDL_RenderClear(gRenderer);
+                gGameOverScreen.Render(gRenderer, 0, 0, &gGameOverScreenClip);
+                SDL_RenderPresent(gRenderer);
+              }
               GameRunning = false;
             }
           }
@@ -425,6 +444,7 @@ bool Init() {
 
   gHomeScreen.LoadTextureFromFile("images/home_screen.png", gRenderer);
   gHelpScreen.LoadTextureFromFile("images/help_screen.png", gRenderer);
+  // gGameOverScreen.LoadTextureFromFile("images/game_over_screen.png", gRenderer);
   gTetrisLogo.LoadTextureFromFile("images/tetris_logo.png", gRenderer);
 
   gPlayButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/play.png", gRenderer);
