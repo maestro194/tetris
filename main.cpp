@@ -20,6 +20,7 @@ Texture gHelpScreen; // fullscreen
 Texture gTetrisLogo; // 600x424
 Texture gPlayButtonTex[BUTTON_TOTAL]; // 250x100
 Texture gHelpButtonTex[BUTTON_TOTAL]; // 250x100
+Texture gBackButtonTex[BUTTON_TOTAL]; // 150x50
 
 // Playfield
 Texture gBoardTex;// 1920x1057
@@ -27,7 +28,7 @@ Texture gBoardTex;// 1920x1057
 Texture gBlock[TOTAL_BLOCK_COLOR]; // I L O revL S T Z
 
 SDL_Rect gHomeScreenClip = {0, 0, 1280, 720};
-SDL_Rect gHelpScreenClip = {0, 0, 1280, 720};
+SDL_Rect gHelpScreenClip = {10, 10, 1260, 700};
 SDL_Rect gTetrisLogoClip = {415, 0, 450, 318};
 SDL_Rect gBoardTexClip = {0, 0, 1280, 720};
 SDL_Rect gBlockClip = {0, 0, BLOCK_WIDTH, BLOCK_HEIGHT};
@@ -35,9 +36,11 @@ SDL_Rect gBlockClip = {0, 0, BLOCK_WIDTH, BLOCK_HEIGHT};
 // Button
 Button gPlayButton(515, 450, 250, 100);
 Button gHelpButton(515, 575, 250, 100);
+Button gBackButton(25, 25, 150, 50);
 
 SDL_Rect gPlayButtonClip = {515, 450, 250, 100};
 SDL_Rect gHelpButtonClip = {515, 575, 250, 100};
+SDL_Rect gBackButtonClip = {25, 25, 150, 50};
 
 // Pieces
 Piece gCurrentPiece;
@@ -363,6 +366,9 @@ int main(int argc, char* argv[]) {
             HelpRunning = 0;
             HomeRunning = 0;
           }
+          if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
+            gBackButton.HandleEvent(&e);
+          }
           if(e.type == SDL_KEYDOWN){
             if(e.key.keysym.sym == SDLK_ESCAPE){
               HelpRunning = 0;
@@ -370,12 +376,19 @@ int main(int argc, char* argv[]) {
           }
         }
 
+        if (gBackButton.buttonSprite == BUTTON_DOWN) {
+          HelpRunning = 0;
+        }
+
         SDL_RenderClear(gRenderer);
-        gHelpScreen.Render(gRenderer, 0, 0, &gHelpScreenClip);
+        gHomeScreen.Render(gRenderer, 0, 0, &gHomeScreenClip);
+        gHelpScreen.Render(gRenderer, 10, 10, &gHelpScreenClip);
+        gBackButton.Render(gRenderer, gBackButtonTex[gBackButton.buttonSprite], &gBackButtonClip);
         SDL_RenderPresent(gRenderer);
       }
       
       gHelpButton.buttonSprite = BUTTON_DEFAULT;
+      gBackButton.buttonSprite = BUTTON_DEFAULT;
     }
   }
 
@@ -420,6 +433,8 @@ bool Init() {
   gHelpButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/help.png", gRenderer);
   gHelpButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/help_hovered.png", gRenderer);
   gHelpButtonTex[BUTTON_DOWN].LoadTextureFromFile("images/help_clicked.png", gRenderer);
+  gBackButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/back.png", gRenderer);
+  gBackButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/back_hovered.png", gRenderer);
 
   gBoardTex.LoadTextureFromFile("images/plain_play_field.png", gRenderer);
 
