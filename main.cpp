@@ -30,10 +30,7 @@ Texture gBlock[TOTAL_BLOCK_COLOR]; // I L O revL S T Z
 
 SDL_Rect gHomeScreenClip = {0, 0, 1280, 720};
 SDL_Rect gHelpScreenClip = {10, 10, 1260, 700};
-=======
-SDL_Rect gHelpScreenClip = {0, 0, 1280, 720};
 SDL_Rect gGameOverScreenClip = {0, 0, 1280, 720};
->>>>>>> 15361bd82aad5c8c7cf8f931eed2e4711ec10806
 SDL_Rect gTetrisLogoClip = {415, 0, 450, 318};
 SDL_Rect gBoardTexClip = {0, 0, 1280, 720};
 SDL_Rect gBlockClip = {0, 0, BLOCK_WIDTH, BLOCK_HEIGHT};
