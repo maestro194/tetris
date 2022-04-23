@@ -67,14 +67,20 @@ enum BlockColor {
 };
 
 // sfx
-enum SFX{
+enum LineClearSFX{
 	NO_CLEAR,
 	LINE_CLEAR,
 	QUAD_CLEAR,
 	SPIN_CLEAR,
 	ALL_CLEAR,
 	DEFAULT,
-	TOTAL_SFX
+	TOTAL_CLEAR_SFX
+};
+
+enum MenuSFX {
+	MENU_HOVERED,
+	MENU_CLICKED,
+	TOTAL_MENU_SFX
 };
 
 void ErrorLog(std::string msg, int error_code);

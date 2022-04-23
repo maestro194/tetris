@@ -7,10 +7,13 @@
 // Global
 SDL_Window* gWindow;
 SDL_Renderer* gRenderer;
-int moveTime;
 
 // Board
 Board gBoard;
+int moveTime;
+int gravity;
+int combo;
+int score;
 
 // Texture
 
@@ -24,8 +27,8 @@ Texture gHelpButtonTex[BUTTON_TOTAL]; // 250x100
 Texture gBackButtonTex[BUTTON_TOTAL]; // 150x50
 
 // Playfield
-Texture gBoardTex;// 1920x1057
-// 33px*33px block 
+Texture gBoardTex; // fullscreen
+// 25px*25px block 
 Texture gBlock[TOTAL_BLOCK_COLOR]; // I L O revL S T Z
 
 SDL_Rect gHomeScreenClip = {0, 0, 1280, 720};
@@ -53,18 +56,18 @@ int incomingPiece[15];
 int arrayForRandom[7] = {1,2,3,4,5,6,7};
 int pieceCount;
 bool holdThisTurn;
-int wallKickData[2][4][2][5][2];
 // [pieceType(else, I)][rotation(0->3)][next_rotation(CW, CCW)][test(0->4)][x, y];
 
 // SFX
 int musicFlag; // change to Mix_Chunk soon
-Mix_Music* gHomeScreenBGM = NULL;
-Mix_Music* gGameBGM = NULL;
+Mix_Music* gHomeScreenBGM; // worked
+Mix_Music* gGameBGM; // worked
 Mix_Chunk* gLineClear; // worked
 Mix_Chunk* gLineClearQuad; // worked
 Mix_Chunk* gHardDrop; // worked
 Mix_Chunk* gHold; // worked
 Mix_Chunk* gMenu[3];
+Mix_Chunk* gRotate; // worked
 Mix_Chunk* gTopOut; // worked
 
 // Pre-declared Function
@@ -73,6 +76,10 @@ void firstPieceBag();
 void secondPieceBag();
 void InitWallKick();
 void Close();
+
+// Data
+int wallKickData[2][4][2][5][2];
+// int scoreData;
 
 int main(int argc, char* argv[]) {
   
@@ -148,6 +155,7 @@ int main(int argc, char* argv[]) {
                 gCurrentPiece.PieceLeftMove();
             }
             if (e.key.keysym.sym == SDLK_z) {
+              Mix_PlayChannel(-1, gRotate, 0);
               if(gCurrentPiece.pieceType == O_PIECE) {
                 gCurrentPiece.PieceCCWRotateMove(0, 0);
                 if (!gBoard.IsPosibleMove(gCurrentPiece))
@@ -165,6 +173,7 @@ int main(int argc, char* argv[]) {
               }
             }
             if (e.key.keysym.sym == SDLK_x) {
+              Mix_PlayChannel(-1, gRotate, 0);
               int xKick, yKick;
               if(gCurrentPiece.pieceType == O_PIECE) {
                 gCurrentPiece.PieceCWRotateMove(0, 0);
@@ -195,6 +204,7 @@ int main(int argc, char* argv[]) {
               }
             }
             if (e.key.keysym.sym == SDLK_c) {
+              Mix_PlayChannel(-1, gRotate, 0);
               gCurrentPiece.PieceFlipMove();
               if (!gBoard.IsPosibleMove(gCurrentPiece))
                 gCurrentPiece.PieceFlipMove();
@@ -311,6 +321,8 @@ int main(int argc, char* argv[]) {
             } 
 
             if(gBoard.IsEnded()){
+              Mix_PlayChannel(-1, gTopOut, 0);
+              Mix_HaltMusic();
               bool GameOverRunning = 1;
               while(GameOverRunning){
                 while(SDL_PollEvent(&e)){
@@ -441,7 +453,7 @@ bool Init() {
 
   gHomeScreen.LoadTextureFromFile("images/home_screen.png", gRenderer);
   gHelpScreen.LoadTextureFromFile("images/help_screen.png", gRenderer);
-  // gGameOverScreen.LoadTextureFromFile("images/game_over_screen.png", gRenderer);
+  gGameOverScreen.LoadTextureFromFile("images/gameover_screen.png", gRenderer);
   gTetrisLogo.LoadTextureFromFile("images/tetris_logo.png", gRenderer);
 
   gPlayButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/play.png", gRenderer);
@@ -465,19 +477,50 @@ bool Init() {
 
   gHomeScreenBGM = Mix_LoadMUS("music/menu_music_Aerial_City_Chika.mp3");
   gGameBGM = Mix_LoadMUS("music/game_music_Wind_Trail_Chika.mp3");
-  if(gGameBGM == NULL)
-    ErrorLog("Cant load the game music: ", MIX_ERROR);
-  
 
   gLineClear = Mix_LoadWAV("sfx/clearline.wav");
   gLineClearQuad = Mix_LoadWAV("sfx/clearquad.wav");
   gHardDrop = Mix_LoadWAV("sfx/harddrop.wav");
   gHold = Mix_LoadWAV("sfx/hold.wav");
+  gRotate = Mix_LoadWAV("sfx/rotate.wav");
   gTopOut = Mix_LoadWAV("sfx/topout.wav");
 
   InitWallKick();
   
   return success;
+}
+
+void Close() {
+  gHomeScreen.FreeTexture();
+  gHelpScreen.FreeTexture();
+  gGameOverScreen.FreeTexture();
+  gTetrisLogo.FreeTexture();
+  for(int i = 0; i < BUTTON_TOTAL; i ++)
+    gPlayButtonTex[i].FreeTexture(),
+    gHelpButtonTex[i].FreeTexture(),
+    gBackButtonTex[i].FreeTexture();
+  gBoardTex.FreeTexture();
+  for(int i = 0; i < TOTAL_BLOCK_COLOR; i ++)
+    gBlock[i].FreeTexture();
+  
+  Mix_FreeMusic(gHomeScreenBGM);
+  Mix_FreeMusic(gGameBGM);
+
+  Mix_FreeChunk(gLineClear);
+  Mix_FreeChunk(gLineClearQuad);
+  Mix_FreeChunk(gHardDrop);
+  Mix_FreeChunk(gHold);
+  Mix_FreeChunk(gRotate);
+  Mix_FreeChunk(gTopOut);
+
+  SDL_DestroyWindow(gWindow);
+  gWindow = NULL;
+  SDL_DestroyRenderer(gRenderer);
+  gRenderer = NULL;
+
+  IMG_Quit();
+  Mix_Quit();
+  SDL_Quit();
 }
 
 void firstPieceBag() {
@@ -593,31 +636,3 @@ void InitWallKick() {
   wallKickData[1][2][0][3][0] = -2, wallKickData[1][2][0][3][1] = -1;
   wallKickData[1][2][0][4][0] =  1, wallKickData[1][2][0][4][1] =  2;
 }
-
-void Close() {
-  gHomeScreen.FreeTexture();
-  gTetrisLogo.FreeTexture();
-  for(int i = 0; i < BUTTON_TOTAL; i ++)
-    gPlayButtonTex[i].FreeTexture(),
-    gHelpButtonTex[i].FreeTexture();
-  for(int i = 0; i < TOTAL_BLOCK_COLOR; i ++)
-    gBlock[i].FreeTexture();
-  
-  Mix_FreeMusic(gHomeScreenBGM);
-  Mix_FreeMusic(gGameBGM);
-  Mix_FreeChunk(gLineClear);
-  Mix_FreeChunk(gLineClearQuad);
-  Mix_FreeChunk(gHardDrop);
-  Mix_FreeChunk(gHold);
-  Mix_FreeChunk(gTopOut);
-
-  SDL_DestroyWindow(gWindow);
-  gWindow = NULL;
-  SDL_DestroyRenderer(gRenderer);
-  gRenderer = NULL;
-
-  IMG_Quit();
-  Mix_Quit();
-  SDL_Quit();
-}
-

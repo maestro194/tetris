@@ -65,6 +65,21 @@ void Board::MergePiece(Piece p) {
 			}
 }
 
+bool Board::TSpinDetection(Piece p) {
+	int x = p.xOffSet + 1, y = p.yOffSet + 1;
+	int cnt = 0;
+
+	if(y == 22)
+		return false;
+	
+	if(board[x - 1][y - 1] != FREE_BLOCK) cnt ++;
+	if(board[x - 1][y + 1] != FREE_BLOCK) cnt ++;
+	if(board[x + 1][y - 1] != FREE_BLOCK) cnt ++;
+	if(board[x + 1][y + 1] != FREE_BLOCK) cnt ++;
+
+	return (cnt >= 3);
+}
+
 void Board::DrawBoard(SDL_Renderer* renderer, Texture gBlock[]) {
 	SDL_Rect gPieceClip = {0, 0, BLOCK_WIDTH - 1, BLOCK_HEIGHT - 1};
 	for (int i = 1; i < 23; i ++) {

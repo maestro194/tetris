@@ -17,7 +17,7 @@ public:
 	int DeletePosibleRow();
 	bool IsPosibleMove(Piece p);
 	void MergePiece(Piece p);
-
+	bool TSpinDetection(Piece p);
 	void DrawBoard(SDL_Renderer* renderer, Texture gBlock[]);
 
 private:
