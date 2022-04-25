@@ -64,6 +64,7 @@ Mix_Music* gHomeScreenBGM; // worked
 Mix_Music* gGameBGM; // worked
 Mix_Chunk* gLineClear; // worked
 Mix_Chunk* gLineClearQuad; // worked
+Mix_Chunk* gLineClearSpin;
 Mix_Chunk* gHardDrop; // worked
 Mix_Chunk* gHold; // worked
 Mix_Chunk* gMenu[3];
@@ -313,6 +314,7 @@ int main(int argc, char* argv[]) {
                 Mix_PlayChannel(-1, gLineClearQuad, 0);
                 break;
               case SPIN_CLEAR:
+                Mix_PlayChannel(-1, gLineClearSpin, 0);
                 break;
               case ALL_CLEAR:
                 break;

@@ -8,6 +8,7 @@ Game over scene : need image
 T-Spin detection
   - for board (done)
   - for game
+  - Add sound for t-spin
 
 Combo system
 Scoring system
