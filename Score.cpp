@@ -38,10 +38,16 @@ void Score::ScoreUpdate(int scoreType){
   else if(scoreType == SINGLE || scoreType == DOUBLE || scoreType == TRIPLE){
     combo = max(5, combo + 1);
     btbValue = 1;
+    lineCleared += scoreType;
+    if(levelLineClear[level] <= lineCleared)
+      level ++;
     score += (scoring[scoreType] * btbValue + 50 * combo) * level;
   }
   else{
     combo = max(5, combo + 1);
+    lineCleared += scoreType - 5;
+    if(levelLineClear[level] <= lineCleared)
+      level ++;
     score += (scoring[scoreType] * btbValue + 50 * combo) * level;
     btbValue = 2;
   }
@@ -50,4 +56,14 @@ void Score::ScoreUpdate(int scoreType){
 void Score::RenderScore(){
   // render later when using number
   cerr << score << '\n';
+}
+
+void Score::RenderLevel(){
+  // render later when using number
+  cerr << level << '\n';
+}
+
+void Score::RenderCombo(){
+  // render later when using number
+  cerr << combo << '\n';
 }

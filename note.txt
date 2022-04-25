@@ -7,11 +7,11 @@ Playfield bg : need image
 Game over scene : need image, currently using home screen
 
 Score flag to music flag
-Currently musicFlag is bugged
+(Currently musicFlag is bugged)
 
 T-Spin moveTime delay
 
-T-Spin detection
+T-Spin detection (not really)
   - for board (done)
   - for game (done)
   - Add sound for t-spin (fixing in musicFlag: line 267)
@@ -21,15 +21,15 @@ Combo system
   score and combo counting
 
 Scoring system
-  - Detect what kind of clear is the drop (done)
+  - Detect what kind of clear is the drop (done except t-spin)
   - Score for clearing the line (done)
-  - BTB system 
+  - BTB system (done)
   - Highscore system
   - pts = (LineClearValue * BTBValue + ComboValue) * LevelAfterClear
 
 Gravity system
   - Level system
-  - Gravity level 
+  - Gravity level : moveTime -> gravity(time/drop)
 
 
 
