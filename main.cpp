@@ -2,6 +2,7 @@
 #include "Button.h"
 #include "GameBase.h"
 #include "Pieces.h"
+#include "Score.h"
 #include "Texture.h"
 
 // Global
@@ -14,6 +15,8 @@ int moveTime;
 int gravity;
 int combo;
 int score;
+// Score
+Score gScore;
 
 // Texture
 
@@ -55,16 +58,20 @@ int holdPiece;
 int incomingPiece[15];
 int arrayForRandom[7] = {1,2,3,4,5,6,7};
 int pieceCount;
+int lineClear;
+int xKick, yKick;
 bool holdThisTurn;
 // [pieceType(else, I)][rotation(0->3)][next_rotation(CW, CCW)][test(0->4)][x, y];
 
 // SFX
 int musicFlag; // change to Mix_Chunk soon
+int scoreFlag;
 Mix_Music* gHomeScreenBGM; // worked
 Mix_Music* gGameBGM; // worked
 Mix_Chunk* gLineClear; // worked
 Mix_Chunk* gLineClearQuad; // worked
 Mix_Chunk* gLineClearSpin;
+Mix_Chunk* gLineClearAllClear;
 Mix_Chunk* gHardDrop; // worked
 Mix_Chunk* gHold; // worked
 Mix_Chunk* gMenu[3];
@@ -80,7 +87,8 @@ void Close();
 
 // Data
 int wallKickData[2][4][2][5][2];
-// int scoreData;
+
+// ***************************************************************************
 
 int main(int argc, char* argv[]) {
   
@@ -163,19 +171,30 @@ int main(int argc, char* argv[]) {
                   gCurrentPiece.PieceCWRotateMove(0, 0);
               }
               else if(gCurrentPiece.pieceType == I_PIECE) {
-                gCurrentPiece.PieceCCWRotateMove(0, 0);
-                if (!gBoard.IsPosibleMove(gCurrentPiece))
-                  gCurrentPiece.PieceCWRotateMove(0, 0);
+                for(int i = 0; i < 5; i ++) {
+                  xKick = wallKickData[1][gCurrentPiece.rotation][1][i][0];
+                  yKick = wallKickData[1][gCurrentPiece.rotation][1][i][1];
+                  gCurrentPiece.PieceCCWRotateMove(xKick, yKick);
+                  if (!gBoard.IsPosibleMove(gCurrentPiece))
+                    gCurrentPiece.PieceCWRotateMove(-xKick, -yKick);
+                  else
+                    break;
+                }
               }
               else {
-                gCurrentPiece.PieceCCWRotateMove(0, 0);
-                if (!gBoard.IsPosibleMove(gCurrentPiece))
-                  gCurrentPiece.PieceCWRotateMove(0, 0);
+                for(int i = 0; i < 5; i ++) {
+                  xKick = wallKickData[0][gCurrentPiece.rotation][1][i][0];
+                  yKick = wallKickData[0][gCurrentPiece.rotation][1][i][1];   
+                  gCurrentPiece.PieceCCWRotateMove(xKick, yKick);
+                  if(!gBoard.IsPosibleMove(gCurrentPiece))
+                    gCurrentPiece.PieceCWRotateMove(-xKick, -yKick);
+                  else  
+                    break;
+                }
               }
             }
             if (e.key.keysym.sym == SDLK_x) {
               Mix_PlayChannel(-1, gRotate, 0);
-              int xKick, yKick;
               if(gCurrentPiece.pieceType == O_PIECE) {
                 gCurrentPiece.PieceCWRotateMove(0, 0);
                 if (!gBoard.IsPosibleMove(gCurrentPiece))
@@ -204,7 +223,7 @@ int main(int argc, char* argv[]) {
                 }
               }
             }
-            if (e.key.keysym.sym == SDLK_c) {
+            if (e.key.keysym.sym == SDLK_a) {
               Mix_PlayChannel(-1, gRotate, 0);
               gCurrentPiece.PieceFlipMove();
               if (!gBoard.IsPosibleMove(gCurrentPiece))
@@ -217,9 +236,13 @@ int main(int argc, char* argv[]) {
               gCurrentPiece.PieceUpMove();
               holdThisTurn = 0;
               moveTime = SDL_GetTicks();
+              
+              scoreFlag = gBoard.LineClearType(gCurrentPiece);
+              gScore.ScoreUpdate(scoreFlag);
+
+              gScore.RenderScore();
 
               pieceCount = (pieceCount + 1) % 14;
-              gBoard.MergePiece(gCurrentPiece);
               if (pieceCount == 0)
                 secondPieceBag();
               if (pieceCount == 7)
@@ -231,7 +254,7 @@ int main(int argc, char* argv[]) {
                 gNextPiece[i].yOffSet = 14;
               }
 
-              musicFlag = gBoard.DeletePosibleRow();
+              // musicFlag
               
               switch (musicFlag)
               {
@@ -244,9 +267,25 @@ int main(int argc, char* argv[]) {
                 case QUAD_CLEAR:
                   Mix_PlayChannel(-1, gLineClearQuad, 0);
                   break;
+                case SPIN_CLEAR:
+                  break;
+                case ALL_CLEAR:
+                  break;
                 default:
                   break;
-              } 
+              }
+
+              // if any line is cleared, computing the score and combo
+              // else reset the combo counter
+              if(musicFlag != NO_CLEAR) {
+                combo ++;
+                if(combo > 0) { // display the combo
+
+                }
+              }
+              else {  
+                combo = -1;
+              }
             }
             if (e.key.keysym.sym == SDLK_LSHIFT && !holdThisTurn) { // hold piece
               // play hold sound
@@ -293,15 +332,21 @@ int main(int argc, char* argv[]) {
           if (!gBoard.IsPosibleMove(gCurrentPiece)) {
             gCurrentPiece.PieceUpMove();
             holdThisTurn = 0;
+
+            scoreFlag = gBoard.LineClearType(gCurrentPiece);
+            gScore.ScoreUpdate(scoreFlag);
+
+            gScore.RenderScore();
+
             pieceCount = (pieceCount + 1) % 14;
-            gBoard.MergePiece(gCurrentPiece);
             if (pieceCount == 0)
               secondPieceBag();
             if (pieceCount == 7)
               firstPieceBag();
             gCurrentPiece.Init(incomingPiece[pieceCount]);
 
-            musicFlag = gBoard.DeletePosibleRow();
+            // musicFlag;
+
             switch (musicFlag)
             {
               case NO_CLEAR:
@@ -317,12 +362,14 @@ int main(int argc, char* argv[]) {
                 Mix_PlayChannel(-1, gLineClearSpin, 0);
                 break;
               case ALL_CLEAR:
+                Mix_PlayChannel(-1, gLineClearAllClear, 0);
                 break;
               default:
                 break;
             } 
 
             if(gBoard.IsEnded()){
+              // game over screen
               Mix_PlayChannel(-1, gTopOut, 0);
               Mix_HaltMusic();
               bool GameOverRunning = 1;
@@ -340,6 +387,7 @@ int main(int argc, char* argv[]) {
                 SDL_RenderPresent(gRenderer);
               }
               GameRunning = false;
+              continue;
             }
           }
         }
@@ -375,11 +423,6 @@ int main(int argc, char* argv[]) {
         // present the window
         SDL_RenderPresent(gRenderer);
       }
-
-      Mix_PlayChannel(-1, gTopOut, 0);
-      Mix_HaltMusic();
-
-      // game over screen
 
       // reset the game (code soon)
       GameRunning = true;
@@ -455,7 +498,7 @@ bool Init() {
 
   gHomeScreen.LoadTextureFromFile("images/home_screen.png", gRenderer);
   gHelpScreen.LoadTextureFromFile("images/help_screen.png", gRenderer);
-  gGameOverScreen.LoadTextureFromFile("images/gameover_screen.png", gRenderer);
+  gGameOverScreen.LoadTextureFromFile("images/home_screen.png", gRenderer);
   gTetrisLogo.LoadTextureFromFile("images/tetris_logo.png", gRenderer);
 
   gPlayButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/play.png", gRenderer);
@@ -482,6 +525,8 @@ bool Init() {
 
   gLineClear = Mix_LoadWAV("sfx/clearline.wav");
   gLineClearQuad = Mix_LoadWAV("sfx/clearquad.wav");
+  // gLineClearSpin = Mix_LoadWAV("sfx/clearspin.wav");
+  // gLineClearAllClear = Mix_LoadWAV("sfx/allclear.wav");
   gHardDrop = Mix_LoadWAV("sfx/harddrop.wav");
   gHold = Mix_LoadWAV("sfx/hold.wav");
   gRotate = Mix_LoadWAV("sfx/rotate.wav");
@@ -510,6 +555,8 @@ void Close() {
 
   Mix_FreeChunk(gLineClear);
   Mix_FreeChunk(gLineClearQuad);
+  Mix_FreeChunk(gLineClearSpin);
+  Mix_FreeChunk(gLineClearAllClear);
   Mix_FreeChunk(gHardDrop);
   Mix_FreeChunk(gHold);
   Mix_FreeChunk(gRotate);

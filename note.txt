@@ -3,18 +3,29 @@ C:\Users\admin\Desktop\Code\Tetris\tetris\
 Mix_Chunk* gMenu[3];
 
 Playfield bg : need image
-Game over scene : need image 
+Game over scene : need image, currently using home screen
+
+Score flag to music flag
+Currently musicFlag is bugged
+
+T-Spin moveTime delay
 
 T-Spin detection
   - for board (done)
-  - for game
-  - Add sound for t-spin
+  - for game (done)
+  - Add sound for t-spin (fixing in musicFlag: line 267)
 
 Combo system
+  - Using WhiteCat 1.0 CK combo number and x for 
+  score and combo counting
+
 Scoring system
-  - Score for clearing the line
+  - Detect what kind of clear is the drop (done)
+  - Score for clearing the line (done)
+  - BTB system 
   - Highscore system
   - pts = (LineClearValue * BTBValue + ComboValue) * LevelAfterClear
+
 Gravity system
   - Level system
   - Gravity level 

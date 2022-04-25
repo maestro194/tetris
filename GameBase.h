@@ -83,6 +83,21 @@ enum MenuSFX {
 	TOTAL_MENU_SFX
 };
 
+// scoring 
+enum ScoringSystem {
+	DROP,
+	SINGLE,
+	DOUBLE,
+	TRIPLE,
+	QUAD,
+	T_SPIN,
+	T_SPIN_SINGLE,
+	T_SPIN_DOUBLE,
+	T_SPIN_TRIPLE,
+	PERFECT_CLEAR,
+	TOTAL_SCORING_TYPE
+};
+
 void ErrorLog(std::string msg, int error_code);
 
 #endif

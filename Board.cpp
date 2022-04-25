@@ -32,16 +32,10 @@ int Board::DeletePosibleRow() {
 			if (board[i][j] == FREE_BLOCK)
 				rowFilled = false;
 		if (rowFilled)
-			DeleteRow(i), 
+			DeleteRow(i),
 			cnt ++;
 	}
-	// change later
-	if(cnt == 4)
-		cnt = QUAD_CLEAR;
-	else if(cnt == 0)
-		cnt = NO_CLEAR;
-	else
-		cnt = LINE_CLEAR;
+	
 	return cnt;
 }
 
@@ -78,6 +72,26 @@ bool Board::TSpinDetection(Piece p) {
 	if(board[x + 1][y + 1] != FREE_BLOCK) cnt ++;
 
 	return (cnt >= 3);
+}
+
+int Board::LineClearType(Piece p){
+	bool TSpinFlag = (p.pieceType == T_PIECE && TSpinDetection(p));
+	MergePiece(p);
+	int lineClear = DeletePosibleRow();
+	if(TSpinFlag) 
+		return T_SPIN + lineClear;
+	
+	else {
+		bool pc = 1;
+		for(int j = 3; j < 13; j ++)
+			if(board[22][j] != FREE_BLOCK)
+				pc = 0;
+			
+		if(pc)
+			return ALL_CLEAR;
+		else
+			return DROP + lineClear;
+	}
 }
 
 void Board::DrawBoard(SDL_Renderer* renderer, Texture gBlock[]) {

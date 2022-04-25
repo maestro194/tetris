@@ -18,6 +18,8 @@ public:
 	bool IsPosibleMove(Piece p);
 	void MergePiece(Piece p);
 	bool TSpinDetection(Piece p);
+	int LineClearType(Piece p);
+
 	void DrawBoard(SDL_Renderer* renderer, Texture gBlock[]);
 
 private:
