@@ -1,6 +1,7 @@
 C:\Users\admin\Desktop\Code\Tetris\tetris\
 
 Mix_Chunk* gMenu[3];
+Mix_Chunk* gCombo[5] // maybe try to change to tetrio sfx
 
 Playfield bg : need image
 Game over scene : need image, currently using home screen

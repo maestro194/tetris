@@ -68,6 +68,7 @@ int musicFlag; // change to Mix_Chunk soon
 int scoreFlag;
 Mix_Music* gHomeScreenBGM; // worked
 Mix_Music* gGameBGM; // worked
+Mix_Chunk* gCombo[5];
 Mix_Chunk* gLineClear; // worked
 Mix_Chunk* gLineClearQuad; // worked
 Mix_Chunk* gLineClearSpin;
