@@ -12,7 +12,6 @@ SDL_Renderer* gRenderer;
 // Board
 Board gBoard;
 int moveTime;
-int gravity;
 int combo;
 int score;
 // Score
@@ -88,7 +87,7 @@ void Close();
 
 // Data
 int wallKickData[2][4][2][5][2];
-
+int gravityLevel[16] = {1000, 1000, 727, 528, 384, 279, 203, 147, 107, 78, 56, 41, 29, 21, 15, 11, 8};
 // ***************************************************************************
 
 int main(int argc, char* argv[]) {
@@ -327,7 +326,7 @@ int main(int argc, char* argv[]) {
 
         // piece move
         if (SDL_GetTicks() > moveTime) {
-          moveTime += 1000;
+          moveTime += gravityLevel[gScore.GetLevel()];
           gCurrentPiece.PieceDownMove();
 
           if (!gBoard.IsPosibleMove(gCurrentPiece)) {
