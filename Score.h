@@ -15,6 +15,7 @@ public:
   void RenderScore();
   void RenderLevel();
   void RenderCombo();
+  int GetLevel();
 
 private:
   int score;
