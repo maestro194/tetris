@@ -67,3 +67,7 @@ void Score::RenderCombo(){
   // render later when using number
   cerr << combo << '\n';
 }
+
+int Score::GetLevel(){
+  return level;
+}
