@@ -24,6 +24,7 @@ Texture gHomeScreen; // fullscreen
 Texture gHelpScreen; // fullscreen
 Texture gGameOverScreen; // fullscreen
 Texture gTetrisLogo; // 600x424
+Texture gPlayFieldBG; // fullscreen
 Texture gPlayButtonTex[BUTTON_TOTAL]; // 250x100
 Texture gHelpButtonTex[BUTTON_TOTAL]; // 250x100
 Texture gBackButtonTex[BUTTON_TOTAL]; // 150x50
@@ -32,11 +33,13 @@ Texture gBackButtonTex[BUTTON_TOTAL]; // 150x50
 Texture gBoardTex; // fullscreen
 // 25px*25px block 
 Texture gBlock[TOTAL_BLOCK_COLOR]; // I L O revL S T Z
+Texture gNumber[TOTAL_NUMBER];
 
 SDL_Rect gHomeScreenClip = {0, 0, 1280, 720};
 SDL_Rect gHelpScreenClip = {10, 10, 1260, 700};
 SDL_Rect gGameOverScreenClip = {0, 0, 1280, 720};
 SDL_Rect gTetrisLogoClip = {415, 0, 450, 318};
+SDL_Rect gPlayFieldBGClip = { 0, 0, 1280, 720 };
 SDL_Rect gBoardTexClip = {0, 0, 1280, 720};
 SDL_Rect gBlockClip = {0, 0, BLOCK_WIDTH, BLOCK_HEIGHT};
 
@@ -63,18 +66,17 @@ bool holdThisTurn;
 // [pieceType(else, I)][rotation(0->3)][next_rotation(CW, CCW)][test(0->4)][x, y];
 
 // SFX
-int musicFlag; // change to Mix_Chunk soon
 int scoreFlag;
 Mix_Music* gHomeScreenBGM; // worked
 Mix_Music* gGameBGM; // worked
-Mix_Chunk* gCombo[5];
+Mix_Chunk* gCombo[6];
 Mix_Chunk* gLineClear; // worked
 Mix_Chunk* gLineClearQuad; // worked
 Mix_Chunk* gLineClearSpin;
 Mix_Chunk* gLineClearAllClear;
 Mix_Chunk* gHardDrop; // worked
 Mix_Chunk* gHold; // worked
-Mix_Chunk* gMenu[3];
+Mix_Chunk* gMenu[TOTAL_MENU_SFX];
 Mix_Chunk* gRotate; // worked
 Mix_Chunk* gTopOut; // worked
 
@@ -87,7 +89,7 @@ void Close();
 
 // Data
 int wallKickData[2][4][2][5][2];
-int gravityLevel[16] = {1000, 1000, 727, 528, 384, 279, 203, 147, 107, 78, 56, 41, 29, 21, 15, 11, 8};
+int gravityLevel[16] = {1000, 1000, 643, 404, 249, 150, 88, 50, 28, 15, 8, 4, 2, 1, 1, 1};
 // ***************************************************************************
 
 int main(int argc, char* argv[]) {
@@ -103,6 +105,7 @@ int main(int argc, char* argv[]) {
   int cnt = 0;
 
   Mix_PlayMusic(gHomeScreenBGM, -1);
+  bool hovered = 0;
   
   while (HomeRunning) {
     while (SDL_PollEvent(&e) != 0) {
@@ -115,6 +118,13 @@ int main(int argc, char* argv[]) {
       }
     }
 
+    if (hovered == false && (gPlayButton.buttonSprite == BUTTON_HOVERED || gHelpButton.buttonSprite == BUTTON_HOVERED)) {
+      hovered = true;
+      Mix_PlayChannel(-1, gMenu[MENU_HOVERED], 0);
+    }
+    else if(gPlayButton.buttonSprite == BUTTON_DEFAULT && gHelpButton.buttonSprite == BUTTON_DEFAULT)
+      hovered = false;
+
     SDL_RenderClear(gRenderer);
     gHomeScreen.Render(gRenderer, 0, 0, &gHomeScreenClip);
     gTetrisLogo.Render(gRenderer, 415, 0, &gTetrisLogoClip);
@@ -123,6 +133,7 @@ int main(int argc, char* argv[]) {
     SDL_RenderPresent(gRenderer);
 
     if (gPlayButton.buttonSprite == BUTTON_DOWN) { // game started
+      Mix_PlayChannel(-1, gMenu[MENU_CLICKED], 0);
       // change the music
       Mix_HaltMusic();
       Mix_PlayMusic(gGameBGM, -1);
@@ -148,17 +159,17 @@ int main(int argc, char* argv[]) {
             if (e.key.keysym.sym == SDLK_ESCAPE) {
               GameRunning = false, HomeRunning = false;
             }
-            if (e.key.keysym.sym == SDLK_LEFT) {
+            if (e.key.keysym.sym == SDLK_COMMA) {
               gCurrentPiece.PieceLeftMove();
               if (!gBoard.IsPosibleMove(gCurrentPiece))
                 gCurrentPiece.PieceRightMove();
             }
-            if (e.key.keysym.sym == SDLK_DOWN) {
+            if (e.key.keysym.sym == SDLK_PERIOD) {
               gCurrentPiece.PieceDownMove();
               if (!gBoard.IsPosibleMove(gCurrentPiece))
                 gCurrentPiece.PieceUpMove();
             }
-            if (e.key.keysym.sym == SDLK_RIGHT) {
+            if (e.key.keysym.sym == SDLK_SLASH) {
               gCurrentPiece.PieceRightMove();
               if (!gBoard.IsPosibleMove(gCurrentPiece))
                 gCurrentPiece.PieceLeftMove();
@@ -237,10 +248,9 @@ int main(int argc, char* argv[]) {
               holdThisTurn = 0;
               moveTime = SDL_GetTicks();
               
+              // score calculating
               scoreFlag = gBoard.LineClearType(gCurrentPiece);
               gScore.ScoreUpdate(scoreFlag);
-
-              gScore.RenderScore();
 
               pieceCount = (pieceCount + 1) % 14;
               if (pieceCount == 0)
@@ -254,43 +264,67 @@ int main(int argc, char* argv[]) {
                 gNextPiece[i].yOffSet = 14;
               }
 
-              // musicFlag
-              
-              switch (musicFlag)
-              {
-                case NO_CLEAR:
-                  Mix_PlayChannel(-1, gHardDrop, 0);
+              if (gScore.GetCombo() > 0) {
+                int tmpCombo = gScore.GetCombo();
+                cerr << tmpCombo << '\n';
+                switch (tmpCombo) {
+                case 1:
+                  Mix_PlayChannel(-1, gCombo[1], 0);
                   break;
-                case LINE_CLEAR:
-                  Mix_PlayChannel(-1, gLineClear, 0);
+                case 2:
+                  Mix_PlayChannel(-1, gCombo[2], 0);
                   break;
-                case QUAD_CLEAR:
-                  Mix_PlayChannel(-1, gLineClearQuad, 0);
+                case 3:
+                  Mix_PlayChannel(-1, gCombo[3], 0);
                   break;
-                case SPIN_CLEAR:
+                case 4:
+                  Mix_PlayChannel(-1, gCombo[4], 0);
                   break;
-                case ALL_CLEAR:
+                case 5:
+                  Mix_PlayChannel(-1, gCombo[5], 0);
                   break;
                 default:
                   break;
-              }
-
-              // if any line is cleared, computing the score and combo
-              // else reset the combo counter
-              if(musicFlag != NO_CLEAR) {
-                combo ++;
-                if(combo > 0) { // display the combo
-
                 }
               }
-              else {  
-                combo = -1;
+              else
+              switch (scoreFlag)
+              {
+              case DROP:
+                Mix_PlayChannel(-1, gCombo[1], 0);
+                break;
+              case SINGLE:
+                Mix_PlayChannel(-1, gLineClear, 0);
+                break;
+              case DOUBLE:
+                Mix_PlayChannel(-1, gLineClear, 0);
+                break;
+              case TRIPLE:
+                Mix_PlayChannel(-1, gLineClear, 0);
+                break;
+              case QUAD:
+                Mix_PlayChannel(-1, gLineClearQuad, 0);
+                break;
+              case T_SPIN_SINGLE:
+                Mix_PlayChannel(-1, gLineClearSpin, 0);
+                break;
+              case T_SPIN_DOUBLE:
+                Mix_PlayChannel(-1, gLineClearSpin, 0);
+                break;
+              case T_SPIN_TRIPLE:
+                Mix_PlayChannel(-1, gLineClearSpin, 0);
+                break;
+              case PERFECT_CLEAR:
+                Mix_PlayChannel(-1, gLineClearAllClear, 0);
+                break;
+              default:
+                break;
               }
+              
             }
             if (e.key.keysym.sym == SDLK_LSHIFT && !holdThisTurn) { // hold piece
               // play hold sound
               Mix_PlayChannel(-1, gHold, 0);
-              musicFlag = DEFAULT;
 
               holdThisTurn = 1;
 
@@ -333,10 +367,9 @@ int main(int argc, char* argv[]) {
             gCurrentPiece.PieceUpMove();
             holdThisTurn = 0;
 
+            // score calculating
             scoreFlag = gBoard.LineClearType(gCurrentPiece);
             gScore.ScoreUpdate(scoreFlag);
-
-            gScore.RenderScore();
 
             pieceCount = (pieceCount + 1) % 14;
             if (pieceCount == 0)
@@ -345,28 +378,60 @@ int main(int argc, char* argv[]) {
               firstPieceBag();
             gCurrentPiece.Init(incomingPiece[pieceCount]);
 
-            // musicFlag;
+            if (gScore.GetCombo() > 0) {
+              switch (gScore.GetCombo()) {
+              case 1:
+                Mix_PlayChannel(-1, gCombo[1], 0);
+                break;
+              case 2:
+                Mix_PlayChannel(-1, gCombo[2], 0);
+                break;
+              case 3:
+                Mix_PlayChannel(-1, gCombo[3], 0);
+                break;
+              case 4:
+                Mix_PlayChannel(-1, gCombo[4], 0);
+                break;
+              case 5:
+                Mix_PlayChannel(-1, gCombo[5], 0);
+                break;
+              default:
+                break;
+              }
+            }
 
-            switch (musicFlag)
+            switch (scoreFlag)
             {
-              case NO_CLEAR:
+              case DROP:
                 Mix_PlayChannel(-1, gHardDrop, 0);
                 break;
-              case LINE_CLEAR:
+              case SINGLE:
                 Mix_PlayChannel(-1, gLineClear, 0);
                 break;
-              case QUAD_CLEAR:
+              case DOUBLE:
+                Mix_PlayChannel(-1, gLineClear, 0);
+                break;
+              case TRIPLE:
+                Mix_PlayChannel(-1, gLineClear, 0);
+                break;
+              case QUAD:
                 Mix_PlayChannel(-1, gLineClearQuad, 0);
                 break;
-              case SPIN_CLEAR:
+              case T_SPIN_SINGLE:
                 Mix_PlayChannel(-1, gLineClearSpin, 0);
                 break;
-              case ALL_CLEAR:
+              case T_SPIN_DOUBLE:
+                Mix_PlayChannel(-1, gLineClearSpin, 0);
+                break;
+              case T_SPIN_TRIPLE:
+                Mix_PlayChannel(-1, gLineClearSpin, 0);
+                break;
+              case PERFECT_CLEAR:
                 Mix_PlayChannel(-1, gLineClearAllClear, 0);
                 break;
               default:
                 break;
-            } 
+            }
 
             if(gBoard.IsEnded()){
               // game over screen
@@ -379,6 +444,10 @@ int main(int argc, char* argv[]) {
                     if(e.key.keysym.sym == SDLK_ESCAPE){
                       GameOverRunning = 0;
                     }
+                  }
+                  if (e.type == SDL_QUIT) {
+                    GameOverRunning = 0;
+                    HomeRunning = 0;
                   }
                 }
 
@@ -394,6 +463,10 @@ int main(int argc, char* argv[]) {
         
         SDL_RenderClear(gRenderer);
         
+        // draw board bg
+        
+        gPlayFieldBG.Render(gRenderer, 0, 0, &gPlayFieldBGClip);
+
         // draw board
         gBoardTex.Render(gRenderer, 0, 0, &gBoardTexClip);
         gBoard.DrawBoard(gRenderer, gBlock);
@@ -416,9 +489,16 @@ int main(int argc, char* argv[]) {
         if(holdPiece != 0)
           gHoldPiece.DrawPiece(gRenderer, gBlock);
 
-        // draw the next 3 piece (soon)
+        // draw the next 3 piece
         for(int i = 0; i < 3; i ++)
           gNextPiece[i].DrawPiece(gRenderer, gBlock);
+
+        // draw the score and combo
+        gScore.RenderScore(gRenderer, gNumber);
+        gScore.RenderLevel(gRenderer, gNumber);
+        gScore.RenderLineCleared(gRenderer, gNumber);
+        if(gScore.GetCombo() > 0)
+        gScore.RenderCombo(gRenderer, gNumber);
 
         // present the window
         SDL_RenderPresent(gRenderer);
@@ -427,10 +507,12 @@ int main(int argc, char* argv[]) {
       // reset the game (code soon)
       GameRunning = true;
       gBoard.Reset();
+      gScore.Reset();
       gPlayButton.buttonSprite = BUTTON_DEFAULT;
     }
 
     if (gHelpButton.buttonSprite == BUTTON_DOWN) {
+      Mix_PlayChannel(-1, gMenu[MENU_CLICKED], 0);
       bool HelpRunning = 1;
 
       while(HelpRunning) {
@@ -496,9 +578,12 @@ bool Init() {
 
   srand(time(0));
 
+  // images
+
   gHomeScreen.LoadTextureFromFile("images/home_screen.png", gRenderer);
   gHelpScreen.LoadTextureFromFile("images/help_screen.png", gRenderer);
   gGameOverScreen.LoadTextureFromFile("images/home_screen.png", gRenderer);
+  gPlayFieldBG.LoadTextureFromFile("images/play_field_bg.png", gRenderer);
   gTetrisLogo.LoadTextureFromFile("images/tetris_logo.png", gRenderer);
 
   gPlayButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/play.png", gRenderer);
@@ -520,6 +605,20 @@ bool Init() {
   gBlock[6].LoadTextureFromFile("images/block_red.png", gRenderer);
   gBlock[7].LoadTextureFromFile("images/block_yellow.png", gRenderer);
 
+  gNumber[0].LoadTextureFromFile("images/combo-0.png", gRenderer);
+  gNumber[1].LoadTextureFromFile("images/combo-1.png", gRenderer);
+  gNumber[2].LoadTextureFromFile("images/combo-2.png", gRenderer);
+  gNumber[3].LoadTextureFromFile("images/combo-3.png", gRenderer);
+  gNumber[4].LoadTextureFromFile("images/combo-4.png", gRenderer);
+  gNumber[5].LoadTextureFromFile("images/combo-5.png", gRenderer);
+  gNumber[6].LoadTextureFromFile("images/combo-6.png", gRenderer);
+  gNumber[7].LoadTextureFromFile("images/combo-7.png", gRenderer);
+  gNumber[8].LoadTextureFromFile("images/combo-8.png", gRenderer);
+  gNumber[9].LoadTextureFromFile("images/combo-9.png", gRenderer);
+  gNumber[10].LoadTextureFromFile("images/combo-x.png", gRenderer);
+
+  // sounds
+
   gHomeScreenBGM = Mix_LoadMUS("music/menu_music_Aerial_City_Chika.mp3");
   gGameBGM = Mix_LoadMUS("music/game_music_Wind_Trail_Chika.mp3");
 
@@ -527,8 +626,15 @@ bool Init() {
   gLineClearQuad = Mix_LoadWAV("sfx/clearquad.wav");
   // gLineClearSpin = Mix_LoadWAV("sfx/clearspin.wav");
   // gLineClearAllClear = Mix_LoadWAV("sfx/allclear.wav");
+  gCombo[1] = Mix_LoadWAV("sfx/combo_1.wav");
+  gCombo[2] = Mix_LoadWAV("sfx/combo_2.wav");
+  gCombo[3] = Mix_LoadWAV("sfx/combo_3.wav");
+  gCombo[4] = Mix_LoadWAV("sfx/combo_4.wav");
+  gCombo[5] = Mix_LoadWAV("sfx/combo_5.wav");
   gHardDrop = Mix_LoadWAV("sfx/harddrop.wav");
   gHold = Mix_LoadWAV("sfx/hold.wav");
+  gMenu[MENU_HOVERED] = Mix_LoadWAV("sfx/menu_hovered.wav");
+  gMenu[MENU_CLICKED] = Mix_LoadWAV("sfx/menu_clicked.wav");
   gRotate = Mix_LoadWAV("sfx/rotate.wav");
   gTopOut = Mix_LoadWAV("sfx/topout.wav");
 
@@ -541,14 +647,17 @@ void Close() {
   gHomeScreen.FreeTexture();
   gHelpScreen.FreeTexture();
   gGameOverScreen.FreeTexture();
+  gPlayFieldBG.FreeTexture();
   gTetrisLogo.FreeTexture();
   for(int i = 0; i < BUTTON_TOTAL; i ++)
     gPlayButtonTex[i].FreeTexture(),
     gHelpButtonTex[i].FreeTexture(),
     gBackButtonTex[i].FreeTexture();
   gBoardTex.FreeTexture();
-  for(int i = 0; i < TOTAL_BLOCK_COLOR; i ++)
+  for (int i = 0; i < TOTAL_BLOCK_COLOR; i ++)
     gBlock[i].FreeTexture();
+  for (int i = 0; i < TOTAL_NUMBER; i ++)
+    gNumber[i].FreeTexture();
   
   Mix_FreeMusic(gHomeScreenBGM);
   Mix_FreeMusic(gGameBGM);
@@ -557,8 +666,12 @@ void Close() {
   Mix_FreeChunk(gLineClearQuad);
   Mix_FreeChunk(gLineClearSpin);
   Mix_FreeChunk(gLineClearAllClear);
+  for (int i = 1; i < 6; i++)
+    Mix_FreeChunk(gCombo[i]);
   Mix_FreeChunk(gHardDrop);
   Mix_FreeChunk(gHold);
+  for (int i = 0; i < TOTAL_MENU_SFX; i++)
+    Mix_FreeChunk(gMenu[i]);
   Mix_FreeChunk(gRotate);
   Mix_FreeChunk(gTopOut);
 

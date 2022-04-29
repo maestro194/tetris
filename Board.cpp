@@ -88,7 +88,7 @@ int Board::LineClearType(Piece p){
 				pc = 0;
 			
 		if(pc)
-			return ALL_CLEAR;
+			return PERFECT_CLEAR;
 		else
 			return DROP + lineClear;
 	}

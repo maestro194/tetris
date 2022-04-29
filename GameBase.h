@@ -67,16 +67,6 @@ enum BlockColor {
 };
 
 // sfx
-enum LineClearSFX{
-	NO_CLEAR,
-	LINE_CLEAR,
-	QUAD_CLEAR,
-	SPIN_CLEAR,
-	ALL_CLEAR,
-	DEFAULT,
-	TOTAL_CLEAR_SFX
-};
-
 enum MenuSFX {
 	MENU_HOVERED,
 	MENU_CLICKED,
@@ -84,6 +74,9 @@ enum MenuSFX {
 };
 
 // scoring 
+const int NUMBER_WIDTH = 30;
+const int NUMBER_HEIGHT = 40;
+
 enum ScoringSystem {
 	DROP,
 	SINGLE,
@@ -96,6 +89,21 @@ enum ScoringSystem {
 	T_SPIN_TRIPLE,
 	PERFECT_CLEAR,
 	TOTAL_SCORING_TYPE
+};
+
+enum Numbering {
+	NUM_0,
+	NUM_1,
+	NUM_2,
+	NUM_3,
+	NUM_4,
+	NUM_5,
+	NUM_6,
+	NUM_7,
+	NUM_8,
+	NUM_9,
+	NUM_x,
+	TOTAL_NUMBER
 };
 
 void ErrorLog(std::string msg, int error_code);

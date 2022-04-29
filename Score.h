@@ -12,10 +12,12 @@ public:
   void Reset();
   int DigitCount();
   void ScoreUpdate(int scoreType);
-  void RenderScore();
-  void RenderLevel();
-  void RenderCombo();
+  void RenderScore(SDL_Renderer* renderer, Texture number[]);
+  void RenderLevel(SDL_Renderer* renderer, Texture number[]);
+  void RenderLineCleared(SDL_Renderer* renderer, Texture number[]);
+  void RenderCombo(SDL_Renderer* renderer, Texture number[]);
   int GetLevel();
+  int GetCombo();
 
 private:
   int score;
