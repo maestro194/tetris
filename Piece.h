@@ -1,5 +1,5 @@
-#ifndef PIECES_H
-#define PIECES_H
+#ifndef PIECE_H
+#define PIECE_H
 
 #include "GameBase.h"
 #include "Texture.h"
@@ -15,13 +15,12 @@ public:
 	void PieceRightMove();
 	void PieceUpMove();
 	void PieceDownMove();
-	void PieceDropMove();
 	void PieceCWRotateMove(int x, int y);
 	void PieceCCWRotateMove(int x, int y);
 	void PieceFlipMove();
-
-	void DrawPiece(SDL_Renderer* renderer, Texture gBlock[]);
-
+	
+	void DrawPiece(SDL_Renderer* renderer, Texture block[]);
+	
 	int pieceType;
 	int rotation;
 	int xOffSet;

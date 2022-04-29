@@ -1,4 +1,4 @@
-#include "Pieces.h"
+#include "Piece.h"
 
 Piece::Piece() {
 
@@ -80,10 +80,6 @@ void Piece::PieceUpMove(){
 
 void Piece::PieceDownMove(){
   xOffSet ++;
-}
-
-void Piece::PieceDropMove(){
-  
 }
 
 void Piece::PieceCWRotateMove(int x, int y){

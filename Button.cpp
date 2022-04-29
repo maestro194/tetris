@@ -6,16 +6,16 @@ Button::Button() {
 	buttonPosition.y = 0;
 }
 
-Button::Button(int x, int y, int w, int h) {
+Button::~Button() {
+
+}
+
+void Button::Init(int x, int y, int w, int h) {
 	buttonSprite = BUTTON_DEFAULT;
 	buttonPosition.x = x;
 	buttonPosition.y = y;
 	buttonWidth = w;
 	buttonHeight = h;
-}
-
-Button::~Button() {
-
 }
 
 bool Button::CursorOnButton(int x, int y) {

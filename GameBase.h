@@ -20,6 +20,14 @@ using namespace std;
 #define IMG_ERROR 2
 #define MIX_ERROR 3
 
+// screen 
+enum Screen{
+	QUIT_SCREEN,
+	HOME_SCREEN,
+	HELP_SCREEN,
+	GAME_SCREEN
+};
+
 // button
 enum ButtonSprite {
 	BUTTON_DEFAULT,
@@ -39,6 +47,19 @@ const int BOARD_START_X = 484; // random value
 const int BOARD_START_Y = 30; // random value
 const int BLOCK_WIDTH = 26;
 const int BLOCK_HEIGHT = 26;
+
+enum Move{
+	LEFT,
+	RIGHT,
+	DOWN,
+	DROP
+};
+
+enum Rotate{
+	CW,
+	CCW,
+	FLIP
+};
 
 // piece
 
@@ -78,7 +99,7 @@ const int NUMBER_WIDTH = 30;
 const int NUMBER_HEIGHT = 40;
 
 enum ScoringSystem {
-	DROP,
+	HARD_DROP,
 	SINGLE,
 	DOUBLE,
 	TRIPLE,
