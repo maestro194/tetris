@@ -7,6 +7,18 @@ void Board::Reset() {
 	for(int i = 0; i < 23; i ++)
 		for(int j = 3; j < 13; j ++)
 			board[i][j] = FREE_BLOCK;
+
+	pieceCount = 0;
+  holdPieceType = NO_PIECE;
+	FirstPieceBag();
+	SecondPieceBag();
+  currentPiece.Init(incomingPiece[pieceCount]);
+	for(int i = 0; i < 3; i ++){
+		nextPiece[i].Init(incomingPiece[pieceCount + 1 + i]);
+		nextPiece[i].xOffSet = 4 + 4 * i;
+		nextPiece[i].yOffSet = 14;
+	}
+	holdThisTurn = 0;
 }
 
 bool Board::IsEnded() {
@@ -271,6 +283,7 @@ void Board::DrawBoard(SDL_Renderer* renderer) {
 	// draw the current piece 
 	currentPiece.DrawPiece(renderer, block);
 	// draw the hold piece
+	if(holdPieceType != NO_PIECE)
 	holdPiece.DrawPiece(renderer, block);
 	// draw the next 3 piece
 	for(int i = 0; i < 3; i ++)

@@ -17,6 +17,8 @@ public:
   void RenderHomeScreen();
   void GameScreen();
   void RenderGameScreen();
+  void GamePlaySound(int scoreFlag);
+  void GameReset();
   void HelpScreen();
   void RenderHelpScreen();
 
@@ -45,6 +47,16 @@ private:
 
   Mix_Music* gHomeScreenBGM; // worked
   Mix_Chunk* gMenu[TOTAL_MENU_SFX];
+  
+  Mix_Chunk* gCombo[6];
+  Mix_Chunk* gLineClear; // worked
+  Mix_Chunk* gLineClearQuad; // worked
+  Mix_Chunk* gLineClearSpin;
+  Mix_Chunk* gLineClearAllClear;
+  Mix_Chunk* gHardDrop; // worked
+  Mix_Chunk* gHold; // worked
+  Mix_Chunk* gRotate; // worked
+  Mix_Chunk* gTopOut; // worked
 
     // Playscreen
     Board gBoard;

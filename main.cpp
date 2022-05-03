@@ -16,15 +16,7 @@ Game game;
 // [pieceType(else, I)][rotation(0->3)][next_rotation(CW, CCW)][test(0->4)][x, y];
 
 // SFX
-Mix_Chunk* gCombo[6];
-Mix_Chunk* gLineClear; // worked
-Mix_Chunk* gLineClearQuad; // worked
-Mix_Chunk* gLineClearSpin;
-Mix_Chunk* gLineClearAllClear;
-Mix_Chunk* gHardDrop; // worked
-Mix_Chunk* gHold; // worked
-Mix_Chunk* gRotate; // worked
-Mix_Chunk* gTopOut; // worked
+
 
 // Pre-declared Function
 bool Init();
@@ -142,7 +134,7 @@ int main(int argc, char* argv[]) {
             }
             if (e.key.keysym.sym == SDLK_LSHIFT && !holdThisTurn) { // hold piece
               // play hold sound
-              Mix_PlayChannel(-1, gHold, 0);
+              
 
               
             }
@@ -154,66 +146,9 @@ int main(int argc, char* argv[]) {
 
           if (!gBoard.IsPosibleMove(gCurrentPiece)) {
 
-            if (gScore.GetCombo() > 0) {
-              int tmpCombo = gScore.GetCombo();
-              switch (tmpCombo) {
-              case 1:
-                Mix_PlayChannel(-1, gCombo[1], 0);
-                break;
-              case 2:
-                Mix_PlayChannel(-1, gCombo[2], 0);
-                break;
-              case 3:
-                Mix_PlayChannel(-1, gCombo[3], 0);
-                break;
-              case 4:
-                Mix_PlayChannel(-1, gCombo[4], 0);
-                break;
-              case 5:
-                Mix_PlayChannel(-1, gCombo[5], 0);
-                break;
-              default:
-                break;
-              }
-            }
-            else
-            switch (scoreFlag)
-            {
-              case HARD_DROP:
-                Mix_PlayChannel(-1, gHardDrop, 0);
-                break;
-              case SINGLE:
-                Mix_PlayChannel(-1, gLineClear, 0);
-                break;
-              case DOUBLE:
-                Mix_PlayChannel(-1, gLineClear, 0);
-                break;
-              case TRIPLE:
-                Mix_PlayChannel(-1, gLineClear, 0);
-                break;
-              case QUAD:
-                Mix_PlayChannel(-1, gLineClearQuad, 0);
-                break;
-              case T_SPIN_SINGLE:
-                Mix_PlayChannel(-1, gLineClearSpin, 0);
-                break;
-              case T_SPIN_DOUBLE:
-                Mix_PlayChannel(-1, gLineClearSpin, 0);
-                break;
-              case T_SPIN_TRIPLE:
-                Mix_PlayChannel(-1, gLineClearSpin, 0);
-                break;
-              case PERFECT_CLEAR:
-                Mix_PlayChannel(-1, gLineClearAllClear, 0);
-                break;
-              default:
-                break;
-            }
 
             if(gBoard.IsEnded()){
               // game over screen
-              Mix_PlayChannel(-1, gTopOut, 0);
-              Mix_HaltMusic();
               
             }
           }
@@ -269,28 +204,10 @@ int main(int argc, char* argv[]) {
     }
 
     if (gHelpButton.buttonSprite == BUTTON_DOWN) {
-      Mix_PlayChannel(-1, gMenu[MENU_CLICKED], 0);
-      bool HelpRunning = 1;
 
       while(HelpRunning) {
-        while(SDL_PollEvent(&e)){
-          if(e.type == SDL_QUIT){
-            HelpRunning = 0;
-            HomeRunning = 0;
-          }
-          if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
-            gBackButton.HandleEvent(&e);
-          }
-          if(e.type == SDL_KEYDOWN){
-            if(e.key.keysym.sym == SDLK_ESCAPE){
-              HelpRunning = 0;
-            }
-          }
-        }
 
-        if (gBackButton.buttonSprite == BUTTON_DOWN) {
-          HelpRunning = 0;
-        }
+        
 
         SDL_RenderClear(gRenderer);
         gHomeScreen.Render(gRenderer, 0, 0, &gHomeScreenClip);
@@ -312,35 +229,14 @@ int main(int argc, char* argv[]) {
 bool Init() {
   // sounds
 
-  gLineClear = Mix_LoadWAV("sfx/clearline.wav");
-  gLineClearQuad = Mix_LoadWAV("sfx/clearquad.wav");
-  // gLineClearSpin = Mix_LoadWAV("sfx/clearspin.wav");
-  // gLineClearAllClear = Mix_LoadWAV("sfx/allclear.wav");
-  gCombo[1] = Mix_LoadWAV("sfx/combo_1.wav");
-  gCombo[2] = Mix_LoadWAV("sfx/combo_2.wav");
-  gCombo[3] = Mix_LoadWAV("sfx/combo_3.wav");
-  gCombo[4] = Mix_LoadWAV("sfx/combo_4.wav");
-  gCombo[5] = Mix_LoadWAV("sfx/combo_5.wav");
-  gHardDrop = Mix_LoadWAV("sfx/harddrop.wav");
-  gHold = Mix_LoadWAV("sfx/hold.wav");
-  gRotate = Mix_LoadWAV("sfx/rotate.wav");
-  gTopOut = Mix_LoadWAV("sfx/topout.wav");
+  
 
   return true;
 }
 
 void Close() {
 
-  Mix_FreeChunk(gLineClear);
-  Mix_FreeChunk(gLineClearQuad);
-  //Mix_FreeChunk(gLineClearSpin);
-  //Mix_FreeChunk(gLineClearAllClear);
-  for (int i = 1; i < 6; i++)
-    Mix_FreeChunk(gCombo[i]);
-  Mix_FreeChunk(gHardDrop);
-  Mix_FreeChunk(gHold);
-  Mix_FreeChunk(gRotate);
-  Mix_FreeChunk(gTopOut);
+  
 
   
 
