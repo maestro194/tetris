@@ -62,13 +62,13 @@ void Score::RenderScore(SDL_Renderer* renderer) {
 }
 
 void Score::RenderGameOverScore(SDL_Renderer* renderer) {
-  SDL_Rect numClip = { 0, 0, NUMBER_WIDTH, NUMBER_HEIGHT };
+  SDL_Rect numClip = { 0, 0, NUMBER_WIDTH + 3, NUMBER_HEIGHT + 4};
   int tmp = score;
-  int x = 0, y = 0;
+  int x = 685, y = 250;
   for (int i = 0; i < 6; i++) {
     int num = tmp % 10;
     number[num].Render(renderer, x, y, &numClip);
-    x -= NUMBER_WIDTH;
+    x -= NUMBER_WIDTH - 2;
     tmp /= 10;
   }
 }

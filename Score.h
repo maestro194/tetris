@@ -12,12 +12,15 @@ public:
   void Reset();
   int DigitCount();
   void ScoreUpdate(int scoreType);
+  
   void RenderScore(SDL_Renderer* renderer);
   void RenderGameOverScore(SDL_Renderer* renderer);
   void RenderLevel(SDL_Renderer* renderer);
   void RenderLineCleared(SDL_Renderer* renderer);
   void RenderCombo(SDL_Renderer* renderer);
+
   void Render(SDL_Renderer* renderer);
+
   int GetLevel();
   int GetCombo();
 

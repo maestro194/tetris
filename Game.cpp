@@ -205,11 +205,13 @@ void Game::GameOverScreen() {
     }
     // play again + back button
     if (gRetryButton.buttonSprite == BUTTON_DOWN) {
+      Mix_PlayChannel(-1, gMenu[MENU_CLICKED], 0);
       GameOverRunning = false;
       screen = GAME_SCREEN;
       gRetryButton.buttonSprite = BUTTON_DEFAULT;
     }
     if (gBackGOButton.buttonSprite == BUTTON_DOWN) {
+      Mix_PlayChannel(-1, gMenu[MENU_HOVERED], 0);
       GameOverRunning = false;
       screen = HOME_SCREEN;
       gBackGOButton.buttonSprite = BUTTON_DEFAULT;
@@ -225,6 +227,7 @@ void Game::RenderGameOverScreen() {
   gBoard.DrawBoard(renderer);
   gScore.Render(renderer);
   gGameOverScreen.Render(renderer, 0, 0, &gGameOverScreenClip);
+  gScore.RenderGameOverScore(renderer);
   gRetryButton.Render(renderer, gRetryButtonTex[gRetryButton.buttonSprite], &gRetryButtonClip);
   gBackGOButton.Render(renderer, gBackGOButtonTex[gBackGOButton.buttonSprite], &gBackGOButtonClip);
 
