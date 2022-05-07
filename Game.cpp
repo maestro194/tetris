@@ -57,6 +57,7 @@ void Game::RenderHomeScreen(){
 
 void Game::GameScreen(){
   Mix_PlayMusic(gGameBGM, -1);
+  GameReset();
 
   bool GameRunning = true;
   SDL_Event e;
@@ -70,27 +71,52 @@ void Game::GameScreen(){
         screen = QUIT_SCREEN;
       }
       if(e.type == SDL_KEYDOWN){
-        if(e.key.keysym.sym == SDLK_ESCAPE){
+        if(e.key.keysym.sym == SDLK_ESCAPE){ // change to pause screen soon
           GameRunning = false;
+          GameReset();
           screen = HOME_SCREEN;
         }
         else if(e.key.keysym.sym == SDLK_COMMA){
           gBoard.Move(LEFT);
+          if (gBoard.GroundMoveDelay())
+            moveTime = SDL_GetTicks() + MOVE_DELAY;
+          else
+            moveTime = SDL_GetTicks();
         }
         else if(e.key.keysym.sym == SDLK_PERIOD){
           gBoard.Move(DOWN);
+          if (gBoard.GroundMoveDelay())
+            moveTime = SDL_GetTicks() + MOVE_DELAY;
+          else
+            moveTime = SDL_GetTicks();
         }
         else if(e.key.keysym.sym == SDLK_SLASH){
           gBoard.Move(RIGHT);
+          if (gBoard.GroundMoveDelay())
+            moveTime = SDL_GetTicks() + MOVE_DELAY;
+          else
+            moveTime = SDL_GetTicks();
         }
         else if(e.key.keysym.sym == SDLK_z){
           gBoard.Rotate(CCW);
+          if (gBoard.GroundMoveDelay())
+            moveTime = SDL_GetTicks() + MOVE_DELAY;
+          else
+            moveTime = SDL_GetTicks();
         }
         else if(e.key.keysym.sym == SDLK_x){
           gBoard.Rotate(CW);
+          if (gBoard.GroundMoveDelay())
+            moveTime = SDL_GetTicks() + MOVE_DELAY;
+          else
+            moveTime = SDL_GetTicks();
         }
         else if(e.key.keysym.sym == SDLK_a){
           gBoard.Rotate(FLIP);
+          if (gBoard.GroundMoveDelay())
+            moveTime = SDL_GetTicks() + MOVE_DELAY;
+          else
+            moveTime = SDL_GetTicks();
         }
         else if(e.key.keysym.sym == SDLK_SPACE){
           gBoard.Move(DROP);
@@ -112,67 +138,95 @@ void Game::GameScreen(){
     }
 
     if(SDL_GetTicks() > moveTime){
-      moveTime += gravityLevel[gScore.GetLevel()];
       if(gBoard.ForceMove()){
         // score calculate
         scoreFlag = gBoard.LineClearType();
         gScore.ScoreUpdate(scoreFlag);
         GamePlaySound(scoreFlag);
 
+        moveTime += gravityLevel[gScore.GetLevel()];
+
         gBoard.NextPiece();
+      }
+      else {
+        if (gBoard.GroundMoveDelay())
+          moveTime += MOVE_DELAY;
+        else
+          moveTime += gravityLevel[gScore.GetLevel()];
       }
     }
 
     if(gBoard.IsEnded()){
       Mix_PlayChannel(-1, gTopOut, 0);
       Mix_HaltMusic();
-      bool GameOverRunning = true;
-      while(GameOverRunning){
-        while(SDL_PollEvent(&e)){
-          if(e.type == SDL_KEYDOWN){
-            if(e.key.keysym.sym == SDLK_ESCAPE){
-              GameOverRunning = false;
-              
-              screen = HOME_SCREEN;
-            }
-          }
-          else if (e.type == SDL_QUIT) {
-            GameOverRunning = false;
-            screen = QUIT_SCREEN;
-          }
-        }
 
-        // add gameover screen soon
-        SDL_RenderClear(renderer);
-        gGameOverScreen.Render(renderer, 0, 0, &gGameOverScreenClip);
-        SDL_RenderPresent(renderer);
-      }
+      GameOverScreen();
+      
       GameRunning = false;
       continue;
     }
 
     RenderGameScreen();
   }
-  // game reset
-  GameReset();
-
 }
 
 void Game::RenderGameScreen(){
   SDL_RenderClear(renderer);
 
   // draw game screen here
-
   // draw board
   gBoard.DrawBoard(renderer);
-  SDL_SetRenderDrawColor(renderer, 128, 128, 128, 128);
-  for(int j = 1; j < 10; j ++)
-    SDL_RenderDrawLine(renderer, 483 + 26 * j, 82, 483 + 26 * j, 601);
-  for(int i = 1; i < 20; i ++)
-    SDL_RenderDrawLine(renderer, 483, 82 + 26 * i, 743, 82 + 26 * i);
-
   // draw score
   gScore.Render(renderer);
+
+  SDL_RenderPresent(renderer);
+}
+
+void Game::GameOverScreen() {
+  bool GameOverRunning = true;
+  SDL_Event e;
+
+  while (GameOverRunning) {
+    while (SDL_PollEvent(&e)) {
+      if (e.type == SDL_QUIT) {
+        GameOverRunning = false;
+        screen = QUIT_SCREEN;
+      }
+      if (e.type == SDL_KEYDOWN) {
+        if (e.key.keysym.sym == SDLK_ESCAPE) {
+          GameOverRunning = false;
+          screen = HOME_SCREEN;
+        }
+      }
+      if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
+        gRetryButton.HandleEvent(&e);
+        gBackGOButton.HandleEvent(&e);
+      }
+    }
+    // play again + back button
+    if (gRetryButton.buttonSprite == BUTTON_DOWN) {
+      GameOverRunning = false;
+      screen = GAME_SCREEN;
+      gRetryButton.buttonSprite = BUTTON_DEFAULT;
+    }
+    if (gBackGOButton.buttonSprite == BUTTON_DOWN) {
+      GameOverRunning = false;
+      screen = HOME_SCREEN;
+      gBackGOButton.buttonSprite = BUTTON_DEFAULT;
+    }
+
+    RenderGameOverScreen();
+  }
+}
+
+void Game::RenderGameOverScreen() {
+  SDL_RenderClear(renderer);
+
+  gBoard.DrawBoard(renderer);
+  gScore.Render(renderer);
+  gGameOverScreen.Render(renderer, 0, 0, &gGameOverScreenClip);
+  gRetryButton.Render(renderer, gRetryButtonTex[gRetryButton.buttonSprite], &gRetryButtonClip);
+  gBackGOButton.Render(renderer, gBackGOButtonTex[gBackGOButton.buttonSprite], &gBackGOButtonClip);
 
   SDL_RenderPresent(renderer);
 }
@@ -182,39 +236,38 @@ void Game::GamePlaySound(int scoreFlag){
     int tmpCombo = gScore.GetCombo();
     Mix_PlayChannel(-1, gCombo[tmpCombo], 0);
   }
-  else
-    switch (scoreFlag)
-    {
-      case HARD_DROP:
-        Mix_PlayChannel(-1, gHardDrop, 0);
-        break;
-      case SINGLE:
-        Mix_PlayChannel(-1, gLineClear, 0);
-        break;
-      case DOUBLE:
-        Mix_PlayChannel(-1, gLineClear, 0);
-        break;
-      case TRIPLE:
-        Mix_PlayChannel(-1, gLineClear, 0);
-        break;
-      case QUAD:
-        Mix_PlayChannel(-1, gLineClearQuad, 0);
-        break;
-      case T_SPIN_SINGLE:
-        Mix_PlayChannel(-1, gLineClearSpin, 0);
-        break;
-      case T_SPIN_DOUBLE:
-        Mix_PlayChannel(-1, gLineClearSpin, 0);
-        break;
-      case T_SPIN_TRIPLE:
-        Mix_PlayChannel(-1, gLineClearSpin, 0);
-        break;
-      case PERFECT_CLEAR:
-        Mix_PlayChannel(-1, gLineClearAllClear, 0);
-        break;
-      default:
-        break;
-    }
+  switch (scoreFlag)
+  {
+    case HARD_DROP:
+      Mix_PlayChannel(-1, gHardDrop, 0);
+      break;
+    case SINGLE:
+      Mix_PlayChannel(-1, gLineClear, 0);
+      break;
+    case DOUBLE:
+      Mix_PlayChannel(-1, gLineClear, 0);
+      break;
+    case TRIPLE:
+      Mix_PlayChannel(-1, gLineClear, 0);
+      break;
+    case QUAD:
+      Mix_PlayChannel(-1, gLineClearQuad, 0);
+      break;
+    case T_SPIN_SINGLE:
+      Mix_PlayChannel(-1, gLineClearSpin, 0);
+      break;
+    case T_SPIN_DOUBLE:
+      Mix_PlayChannel(-1, gLineClearSpin, 0);
+      break;
+    case T_SPIN_TRIPLE:
+      Mix_PlayChannel(-1, gLineClearSpin, 0);
+      break;
+    case PERFECT_CLEAR:
+      Mix_PlayChannel(-1, gLineClearAllClear, 0);
+      break;
+    default:
+      break;
+  }
 }
 
 void Game::GameReset(){
@@ -245,6 +298,7 @@ void Game::HelpScreen(){
 
     if(gBackButton.buttonSprite == BUTTON_DOWN){
       HelpRunning = false;
+      Mix_PlayChannel(-1, gMenu[MENU_CLICKED], 0);
       screen = HOME_SCREEN;
       gBackButton.buttonSprite = BUTTON_DEFAULT;
     }
@@ -271,18 +325,14 @@ int Game::GetScreen(){
 Game::Game(){
   srand(time(0));
 
-  bool success = true;
-
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     ErrorLog("SDL could not init video. ", SDL_ERROR);
-    success = false;
   }
   else if (SDL_Init(SDL_INIT_AUDIO) < 0) {
     ErrorLog("SDL cound not init audio. ", SDL_ERROR);
   }
   else if (!(IMG_Init(IMG_INIT_PNG))) {
     ErrorLog("IMG_Init failed to init. ", IMG_ERROR);
-    success = false;
   }
   else if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 2048)) {
     ErrorLog("SDL_mixer failed to init. ", MIX_ERROR);
@@ -302,13 +352,11 @@ Game::Game(){
 
   gPlayButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/play.png", renderer);
   gPlayButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/play_hovered.png", renderer);
-  gPlayButtonTex[BUTTON_DOWN].LoadTextureFromFile("images/play_clicked.png", renderer);
   gHelpButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/help.png", renderer);
   gHelpButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/help_hovered.png", renderer);
-  gHelpButtonTex[BUTTON_DOWN].LoadTextureFromFile("images/help_clicked.png", renderer);
 
-  gPlayButton.Init(515, 450, 250, 100);
-  gHelpButton.Init(515, 575, 250, 100);
+  gPlayButton.Init(540, 450, 200, 85);
+  gHelpButton.Init(540, 560, 200, 85);
 
   gHomeScreenBGM = Mix_LoadMUS("music/menu_music_Aerial_City_Chika.mp3");
   
@@ -322,14 +370,22 @@ Game::Game(){
   gCombo[5] = Mix_LoadWAV("sfx/combo_5.wav");
   gLineClear = Mix_LoadWAV("sfx/clearline.wav");
   gLineClearQuad = Mix_LoadWAV("sfx/clearquad.wav");
-  // gLineClearSpin = Mix_LoadWAV("sfx/clearspin.wav");
+  gLineClearSpin = Mix_LoadWAV("sfx/clearspin.wav");
   // gLineClearAllClear = Mix_LoadWAV("sfx/allclear.wav");
   gHardDrop = Mix_LoadWAV("sfx/harddrop.wav");
   gHold = Mix_LoadWAV("sfx/hold.wav");
   gRotate = Mix_LoadWAV("sfx/rotate.wav");
   gTopOut = Mix_LoadWAV("sfx/topout.wav");
 
-  gGameOverScreen.LoadTextureFromFile("images/home_screen.png", renderer);
+  // gameover screen
+  gGameOverScreen.LoadTextureFromFile("images/gameover_screen.png", renderer);
+  gRetryButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/retry.png", renderer);
+  gRetryButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/retry_hovered.png", renderer);
+  gBackGOButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/backgo.png", renderer);
+  gBackGOButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/backgo_hovered.png", renderer);
+
+  gRetryButton.Init(540, 400, 200, 85);
+  gBackGOButton.Init(540, 510, 200, 85);
 
   // playscreen
   gBoard.TextureInit(renderer);
@@ -369,7 +425,10 @@ Game::~Game(){
 
   // playscreen
   gGameOverScreen.FreeTexture();
-  
+  for (int i = 0; i < BUTTON_TOTAL; i++)
+    gRetryButtonTex[i].FreeTexture(),
+    gBackGOButtonTex[i].FreeTexture();
+
   Mix_FreeMusic(gGameBGM);
 
   // helpscreen

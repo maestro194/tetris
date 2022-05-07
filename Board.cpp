@@ -13,9 +13,11 @@ void Board::Reset() {
 	FirstPieceBag();
 	SecondPieceBag();
   currentPiece.Init(incomingPiece[pieceCount]);
+	currentPieceGhost.Init(incomingPiece[pieceCount]);
+	UpdateGhostPiece();
 	for(int i = 0; i < 3; i ++){
 		nextPiece[i].Init(incomingPiece[pieceCount + 1 + i]);
-		nextPiece[i].xOffSet = 4 + 4 * i;
+		nextPiece[i].xOffSet = 5 + 4 * i;
 		nextPiece[i].yOffSet = 14;
 	}
 	holdThisTurn = 0;
@@ -51,6 +53,8 @@ void Board::Move(int moveType){
 		currentPiece.PieceUpMove();
 		holdThisTurn = 0;
 	}
+	UpdateLastMove(MOVED);
+	UpdateGhostPiece();
 }
 
 void Board::Rotate(int moveType){
@@ -114,6 +118,8 @@ void Board::Rotate(int moveType){
 		if (!IsPosibleMove())
 			currentPiece.PieceFlipMove();
 	}
+	UpdateLastMove(ROTATED);
+	UpdateGhostPiece();
 }
 
 void Board::Hold(){
@@ -132,9 +138,10 @@ void Board::Hold(){
 		if (pieceCount == 7)
 			FirstPieceBag();
 		currentPiece.Init(incomingPiece[pieceCount]);
+		currentPieceGhost.Init(incomingPiece[pieceCount]);
 		for(int i = 0; i < 3; i ++){
 			nextPiece[i].Init(incomingPiece[(pieceCount + 1 + i) % 14]);
-			nextPiece[i].xOffSet = 4 + 4 * i;
+			nextPiece[i].xOffSet = 5 + 4 * i;
 			nextPiece[i].yOffSet = 14;
 		}
 	}
@@ -143,9 +150,12 @@ void Board::Hold(){
 		holdPiece.Init(holdPieceType);
 
 		currentPiece.Init(incomingPiece[pieceCount]);
+		currentPieceGhost.Init(incomingPiece[pieceCount]);
 	}
-	holdPiece.xOffSet = 4;
+	holdPiece.xOffSet = 5;
 	holdPiece.yOffSet = -2;
+	UpdateLastMove(HOLD);
+	UpdateGhostPiece();
 }
 
 bool Board::ForceMove(){
@@ -153,8 +163,10 @@ bool Board::ForceMove(){
 	if(!IsPosibleMove()){
 		currentPiece.PieceUpMove();
 		holdThisTurn = 0;
+		UpdateGhostPiece();
 		return true;
 	}
+	UpdateGhostPiece();
 	return false;
 }
 
@@ -165,11 +177,13 @@ void Board::NextPiece(){
 	if (pieceCount == 7)
 		FirstPieceBag();
 	currentPiece.Init(incomingPiece[pieceCount]);
+	currentPieceGhost.Init(incomingPiece[pieceCount]);
 	for(int i = 0; i < 3; i ++){
 		nextPiece[i].Init(incomingPiece[(pieceCount + 1 + i) % 14]);
-		nextPiece[i].xOffSet = 4 + 4 * i;
+		nextPiece[i].xOffSet = 5 + 4 * i;
 		nextPiece[i].yOffSet = 14;
 	}
+	UpdateGhostPiece();
 }
 
 void Board::FirstPieceBag() {
@@ -220,6 +234,21 @@ bool Board::IsPosibleMove() {
 	return true;
 }
 
+bool Board::IsPosibleMoveGhost() {
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			if (currentPieceGhost.shape[currentPieceGhost.rotation][i][j] == 1) {
+				int x = i + currentPieceGhost.xOffSet, y = j + currentPieceGhost.yOffSet;
+				if (board[x][y] != FREE_BLOCK)
+					return false;
+			}
+	return true;
+}
+
+bool Board::GroundMoveDelay() {
+	return currentPiece.xOffSet == currentPieceGhost.xOffSet;
+}
+
 void Board::MergePiece() {
 	for(int i = 0; i < 4; i ++)
 		for(int j = 0; j < 4; j ++)
@@ -229,11 +258,21 @@ void Board::MergePiece() {
 			}
 }
 
+void Board::UpdateLastMove(int move) {
+	lastMoveType = move;
+}
+
+int Board::GetLastMove() {
+	return lastMoveType;
+}
+
 bool Board::TSpinDetection() {
 	int x = currentPiece.xOffSet + 1, y = currentPiece.yOffSet + 1;
 	int cnt = 0;
 
 	if(y == 22)
+		return false;
+	if (lastMoveType != ROTATED)
 		return false;
 	
 	if(board[x - 1][y - 1] != FREE_BLOCK) cnt ++;
@@ -264,6 +303,23 @@ int Board::LineClearType(){
 	}
 }
 
+void Board::UpdateGhostPiece() {
+	currentPieceGhost.xOffSet = currentPiece.xOffSet;
+	currentPieceGhost.yOffSet = currentPiece.yOffSet;
+	currentPieceGhost.rotation = currentPiece.rotation;
+	do {
+		currentPieceGhost.PieceDownMove();
+	} while (IsPosibleMoveGhost());
+	currentPieceGhost.PieceUpMove();
+}
+
+void Board::DrawGhostPiece(SDL_Renderer* renderer) {
+	currentPieceGhost.pieceType = currentPiece.pieceType;
+	currentPieceGhost.DrawPiece(renderer, block);
+	currentPieceGhost.pieceType = GHOST_PIECE;
+	currentPieceGhost.DrawPiece(renderer, block);
+}
+
 void Board::DrawBoard(SDL_Renderer* renderer) {
 	playFieldBG.Render(renderer, 0, 0, &playFieldBGClip);
 	boardTex.Render(renderer, 0, 0, &boardTexClip);
@@ -279,7 +335,9 @@ void Board::DrawBoard(SDL_Renderer* renderer) {
 			}
 		}
 	}
-
+	
+	// draw the current piece ghost
+	DrawGhostPiece(renderer);
 	// draw the current piece 
 	currentPiece.DrawPiece(renderer, block);
 	// draw the hold piece
@@ -301,6 +359,7 @@ void Board::TextureInit(SDL_Renderer* renderer){
   block[5].LoadTextureFromFile("images/block_pink.png", renderer);
   block[6].LoadTextureFromFile("images/block_red.png", renderer);
   block[7].LoadTextureFromFile("images/block_yellow.png", renderer);
+	block[8].LoadTextureFromFile("images/block_ghost.png", renderer);
 }
 
 Board::Board() {
@@ -318,9 +377,11 @@ Board::Board() {
 	FirstPieceBag();
 	SecondPieceBag();
   currentPiece.Init(incomingPiece[pieceCount]);
+	currentPieceGhost.Init(incomingPiece[pieceCount]);
+	UpdateGhostPiece();
 	for(int i = 0; i < 3; i ++){
 		nextPiece[i].Init(incomingPiece[pieceCount + 1 + i]);
-		nextPiece[i].xOffSet = 4 + 4 * i;
+		nextPiece[i].xOffSet = 5 + 4 * i;
 		nextPiece[i].yOffSet = 14;
 	}
 	holdThisTurn = 0;

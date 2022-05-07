@@ -50,9 +50,21 @@ void Score::ScoreUpdate(int scoreType){
 }
 
 void Score::RenderScore(SDL_Renderer* renderer) {
-  SDL_Rect numClip = {0, 0, 30, 40};
+  SDL_Rect numClip = { 0, 0, NUMBER_WIDTH, NUMBER_HEIGHT };
   int tmp = score;
-  int x = 150, y = 0;
+  int x = 448, y = 455;
+  for (int i = 0; i < 6; i++) {
+    int num = tmp % 10;
+    number[num].Render(renderer, x, y, &numClip);
+    x -= NUMBER_WIDTH - 2;
+    tmp /= 10;
+  }
+}
+
+void Score::RenderGameOverScore(SDL_Renderer* renderer) {
+  SDL_Rect numClip = { 0, 0, NUMBER_WIDTH, NUMBER_HEIGHT };
+  int tmp = score;
+  int x = 0, y = 0;
   for (int i = 0; i < 6; i++) {
     int num = tmp % 10;
     number[num].Render(renderer, x, y, &numClip);
@@ -62,33 +74,33 @@ void Score::RenderScore(SDL_Renderer* renderer) {
 }
 
 void Score::RenderLevel(SDL_Renderer* renderer) {
-  SDL_Rect numClip = { 0, 0, 30, 40 };
+  SDL_Rect numClip = { 0, 0, NUMBER_WIDTH, NUMBER_HEIGHT };
   int tmp = level;
-  int x = 30, y = 50;
+  int x = 448, y = 508;
   for (int i = 0; i < 2; i++) {
     int num = tmp % 10;
     number[num].Render(renderer, x, y, &numClip);
-    x -= NUMBER_WIDTH;
+    x -= NUMBER_WIDTH - 2;
     tmp /= 10;
   }
 }
 
 void Score::RenderLineCleared(SDL_Renderer* renderer) {
-  SDL_Rect numClip = { 0, 0, 30, 40 };
+  SDL_Rect numClip = { 0, 0, NUMBER_WIDTH, NUMBER_HEIGHT };
   int tmp = lineCleared;
-  int x = 60, y = 100;
+  int x = 448, y = 561;
   for (int i = 0; i < 3; i++) {
     int num = tmp % 10;
     number[num].Render(renderer, x, y, &numClip);
-    x -= NUMBER_WIDTH;
+    x -= NUMBER_WIDTH - 2;
     tmp /= 10;
   }
 }
 
 void Score::RenderCombo(SDL_Renderer* renderer){
-  SDL_Rect numClip = { 0, 0, 30, 40 };
+  SDL_Rect numClip = { 0, 0, NUMBER_WIDTH, NUMBER_HEIGHT };
   int tmp = combo;
-  int x = 30, y = 150;
+  int x = 448, y = 250;
   number[NUM_x].Render(renderer, x, y, &numClip);
   x -= NUMBER_WIDTH + 3;
   for (int i = 0; i < 1; i++) {

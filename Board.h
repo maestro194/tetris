@@ -27,11 +27,19 @@ public:
 
 	void DeleteRow(int row);
 	int DeletePosibleRow();
-	bool IsPosibleMove();
+
+	bool IsPosibleMove(); 
+	bool IsPosibleMoveGhost();
+	bool GroundMoveDelay();
+
 	void MergePiece();
+	void UpdateLastMove(int move);
+	int GetLastMove();
 	bool TSpinDetection();
 	int LineClearType();
-
+	
+	void UpdateGhostPiece();
+	void DrawGhostPiece(SDL_Renderer* renderer);
 	void DrawBoard(SDL_Renderer* renderer);
 	void TextureInit(SDL_Renderer* renderer);
 
@@ -46,12 +54,14 @@ private:
 	SDL_Rect blockClip = {0, 0, BLOCK_WIDTH, BLOCK_HEIGHT};
 
 	Piece currentPiece;
+	Piece currentPieceGhost;
 	Piece holdPiece;
 	Piece nextPiece[3];
 	int holdPieceType;
 	int incomingPiece[15];
 	int pieceCount;
 	int holdThisTurn;
+	int lastMoveType;
 
 	int wallKickData[2][4][2][5][2];
 };

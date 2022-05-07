@@ -15,12 +15,18 @@ public:
 
   void HomeScreen();
   void RenderHomeScreen();
+
   void GameScreen();
   void RenderGameScreen();
-  void GamePlaySound(int scoreFlag);
-  void GameReset();
+
+  void GameOverScreen();
+  void RenderGameOverScreen();
+  
   void HelpScreen();
   void RenderHelpScreen();
+
+  void GamePlaySound(int scoreFlag);
+  void GameReset();
 
   int GetScreen();
 
@@ -42,8 +48,8 @@ private:
 
   SDL_Rect gHomeScreenClip = {0, 0, 1280, 720};
   SDL_Rect gTetrisLogoClip = {415, 0, 450, 318};
-  SDL_Rect gPlayButtonClip = {515, 450, 250, 100};
-  SDL_Rect gHelpButtonClip = {515, 575, 250, 100};
+  SDL_Rect gPlayButtonClip = {515, 450, 200, 85};
+  SDL_Rect gHelpButtonClip = {515, 560, 200, 85};
 
   Mix_Music* gHomeScreenBGM; // worked
   Mix_Chunk* gMenu[TOTAL_MENU_SFX];
@@ -62,15 +68,23 @@ private:
     Board gBoard;
     Score gScore;
 
-    Texture gGameOverScreen; // fullscreen
-    
-    SDL_Rect gGameOverScreenClip = {0, 0, 1280, 720};
-
     Mix_Music* gGameBGM; // worked
 
     int moveTime;
     int gravityLevel[16] = {1000, 1000, 643, 404, 249, 150, 88, 50, 28, 15, 8, 4, 2, 1, 1, 1};
     int scoreFlag;
+
+    // gameover screen
+    Texture gGameOverScreen; // fullscreen
+    Texture gRetryButtonTex[BUTTON_TOTAL];
+    Texture gBackGOButtonTex[BUTTON_TOTAL];
+    
+    Button gRetryButton;
+    Button gBackGOButton;
+
+    SDL_Rect gGameOverScreenClip = { 0, 0, 1280, 720 };
+    SDL_Rect gRetryButtonClip = { 565, 400, 200, 85 };
+    SDL_Rect gBackGOButtonClip = { 565, 510, 200, 85 };
 
     // Helpscreen
     Texture gHelpScreen; // fullscreen

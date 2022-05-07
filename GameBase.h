@@ -47,6 +47,13 @@ const int BOARD_START_X = 484; // random value
 const int BOARD_START_Y = 30; // random value
 const int BLOCK_WIDTH = 26;
 const int BLOCK_HEIGHT = 26;
+const int MOVE_DELAY = 800;
+
+enum MoveType {
+	MOVED,
+	ROTATED,
+	HOLD
+};
 
 enum Move{
 	LEFT,
@@ -72,6 +79,7 @@ enum PiecesNumbering {
 	T_PIECE,
 	Z_PIECE,
 	O_PIECE,
+	GHOST_PIECE,
 	TOTAL_PIECE
 };
 
@@ -84,6 +92,7 @@ enum BlockColor {
 	PINK_BLOCK,
 	RED_BLOCK,
 	YELLOW_BLOCK,
+	GHOST_BLOCK,
 	TOTAL_BLOCK_COLOR
 };
 
@@ -95,8 +104,8 @@ enum MenuSFX {
 };
 
 // scoring 
-const int NUMBER_WIDTH = 30;
-const int NUMBER_HEIGHT = 40;
+const int NUMBER_WIDTH = 27;
+const int NUMBER_HEIGHT = 36;
 
 enum ScoringSystem {
 	HARD_DROP,
