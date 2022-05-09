@@ -79,34 +79,88 @@ void Game::GameScreen(){
           }
         }
         else if(e.key.keysym.sym == SDLK_COMMA){
-          gBoard.Move(LEFT);
-          if (gBoard.GroundMoveDelay())
-            moveTime = SDL_GetTicks() + MOVE_DELAY;
+          if(gBoard.GroundMoveDelay()){
+            gBoard.Move(LEFT);
+            if (gBoard.GroundMoveDelay())
+              moveTime = SDL_GetTicks() + MOVE_DELAY;
+            else
+              moveTime = SDL_GetTicks();
+          }
+          else{
+            gBoard.Move(LEFT);
+            if (gBoard.GroundMoveDelay())
+              moveTime = SDL_GetTicks() + MOVE_DELAY; 
+          }
         }
         else if(e.key.keysym.sym == SDLK_PERIOD){
-          gBoard.Move(DOWN);
-          if (gBoard.GroundMoveDelay())
-            moveTime = SDL_GetTicks() + MOVE_DELAY;
+          if(gBoard.GroundMoveDelay()){
+            gBoard.Move(DOWN);
+            if (gBoard.GroundMoveDelay())
+              moveTime = SDL_GetTicks() + MOVE_DELAY;
+            else
+              moveTime = SDL_GetTicks();
+          }
+          else{
+            gBoard.Move(DOWN);
+            if (gBoard.GroundMoveDelay())
+              moveTime = SDL_GetTicks() + MOVE_DELAY; 
+          }
         }
         else if(e.key.keysym.sym == SDLK_SLASH){
-          gBoard.Move(RIGHT);
-          if (gBoard.GroundMoveDelay())
-            moveTime = SDL_GetTicks() + MOVE_DELAY;
+          if(gBoard.GroundMoveDelay()){
+            gBoard.Move(RIGHT);
+            if (gBoard.GroundMoveDelay())
+              moveTime = SDL_GetTicks() + MOVE_DELAY;
+            else
+              moveTime = SDL_GetTicks();
+          }
+          else{
+            gBoard.Move(RIGHT);
+            if (gBoard.GroundMoveDelay())
+              moveTime = SDL_GetTicks() + MOVE_DELAY; 
+          }
         }
         else if(e.key.keysym.sym == SDLK_z){
-          gBoard.Rotate(CCW);
-          if (gBoard.GroundMoveDelay())
-            moveTime = SDL_GetTicks() + MOVE_DELAY;
+          if(gBoard.GroundMoveDelay()){
+            gBoard.Rotate(CCW);
+            if (gBoard.GroundMoveDelay())
+              moveTime = SDL_GetTicks() + MOVE_DELAY;
+            else
+              moveTime = SDL_GetTicks();
+          }
+          else{
+            gBoard.Rotate(CCW);
+            if (gBoard.GroundMoveDelay())
+              moveTime = SDL_GetTicks() + MOVE_DELAY;
+          }
         }
         else if(e.key.keysym.sym == SDLK_x){
-          gBoard.Rotate(CW);
-          if (gBoard.GroundMoveDelay())
-            moveTime = SDL_GetTicks() + MOVE_DELAY;
+          if(gBoard.GroundMoveDelay()){
+            gBoard.Rotate(CW);
+            if (gBoard.GroundMoveDelay())
+              moveTime = SDL_GetTicks() + MOVE_DELAY;
+            else
+              moveTime = SDL_GetTicks();
+          }
+          else{
+            gBoard.Rotate(CW);
+            if (gBoard.GroundMoveDelay())
+              moveTime = SDL_GetTicks() + MOVE_DELAY;
+          }
         }
         else if(e.key.keysym.sym == SDLK_a){
-          gBoard.Rotate(FLIP);
-          if (gBoard.GroundMoveDelay())
-            moveTime = SDL_GetTicks() + MOVE_DELAY;
+          if(gBoard.GroundMoveDelay()){
+            gBoard.Rotate(FLIP);
+            if (gBoard.GroundMoveDelay())
+              moveTime = SDL_GetTicks() + MOVE_DELAY;
+            else
+              moveTime = SDL_GetTicks();
+          }
+          else{
+            gBoard.Rotate(FLIP);
+            if (gBoard.GroundMoveDelay())
+              moveTime = SDL_GetTicks() + MOVE_DELAY;
+          }
         }
         else if(e.key.keysym.sym == SDLK_SPACE){
           gBoard.Move(DROP);
@@ -134,7 +188,7 @@ void Game::GameScreen(){
         gScore.ScoreUpdate(scoreFlag);
         GamePlaySound(scoreFlag);
 
-        moveTime += gravityLevel[gScore.GetLevel()];
+        moveTime = SDL_GetTicks() + gravityLevel[gScore.GetLevel()];
 
         gBoard.NextPiece();
       }
