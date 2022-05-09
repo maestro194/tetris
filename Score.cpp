@@ -64,7 +64,7 @@ void Score::RenderScore(SDL_Renderer* renderer) {
 void Score::RenderGameOverScore(SDL_Renderer* renderer) {
   SDL_Rect numClip = { 0, 0, NUMBER_WIDTH + 3, NUMBER_HEIGHT + 4};
   int tmp = score;
-  int x = 685, y = 250;
+  int x = 687, y = 250;
   for (int i = 0; i < 6; i++) {
     int num = tmp % 10;
     number[num].Render(renderer, x, y, &numClip);

@@ -53,7 +53,7 @@ void Board::Move(int moveType){
 		currentPiece.PieceUpMove();
 		holdThisTurn = 0;
 	}
-	UpdateLastMove(MOVED);
+	
 	UpdateGhostPiece();
 }
 
@@ -166,6 +166,8 @@ bool Board::ForceMove(){
 		UpdateGhostPiece();
 		return true;
 	}
+	else
+		UpdateLastMove(MOVED);
 	UpdateGhostPiece();
 	return false;
 }

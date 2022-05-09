@@ -19,6 +19,9 @@ public:
   void GameScreen();
   void RenderGameScreen();
 
+  void PauseScreen();
+  void RenderPauseScreen();
+
   void GameOverScreen();
   void RenderGameOverScreen();
   
@@ -67,6 +70,17 @@ private:
     // Playscreen
     Board gBoard;
     Score gScore;
+
+    Texture gPauseScreen;
+    Texture gPauseResumeTex[BUTTON_TOTAL];
+    Texture gPauseBackTex[BUTTON_TOTAL];
+
+    Button gPauseResume;
+    Button gPauseBack;
+
+    SDL_Rect gPauseScreenClip = { 0, 0, 1280, 720 };
+    SDL_Rect gPauseResumeClip = { 540, 450, 200, 85 };
+    SDL_Rect gPauseBackClip = { 540, 560, 200, 85 };
 
     Mix_Music* gGameBGM; // worked
 

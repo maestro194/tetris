@@ -25,6 +25,7 @@ enum Screen{
 	QUIT_SCREEN,
 	HOME_SCREEN,
 	HELP_SCREEN,
+	PAUSE_SCREEN,
 	GAME_SCREEN
 };
 
@@ -59,6 +60,7 @@ enum Move{
 	LEFT,
 	RIGHT,
 	DOWN,
+	FORCE,
 	DROP
 };
 
