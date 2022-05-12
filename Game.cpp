@@ -78,7 +78,7 @@ void Game::GameScreen(){
             GameReset();
           }
         }
-        else if(e.key.keysym.sym == SDLK_COMMA){
+        else if(e.key.keysym.sym == SDLK_LEFT){
           if(gBoard.GroundMoveDelay()){
             gBoard.Move(LEFT);
             if (gBoard.GroundMoveDelay())
@@ -92,7 +92,7 @@ void Game::GameScreen(){
               moveTime = SDL_GetTicks() + MOVE_DELAY; 
           }
         }
-        else if(e.key.keysym.sym == SDLK_PERIOD){
+        else if(e.key.keysym.sym == SDLK_DOWN){
           if(gBoard.GroundMoveDelay()){
             gBoard.Move(DOWN);
             if (gBoard.GroundMoveDelay())
@@ -106,7 +106,7 @@ void Game::GameScreen(){
               moveTime = SDL_GetTicks() + MOVE_DELAY; 
           }
         }
-        else if(e.key.keysym.sym == SDLK_SLASH){
+        else if(e.key.keysym.sym == SDLK_RIGHT){
           if(gBoard.GroundMoveDelay()){
             gBoard.Move(RIGHT);
             if (gBoard.GroundMoveDelay())
