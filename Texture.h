@@ -11,7 +11,6 @@ public:
 	void FreeTexture();
 	void LoadTextureFromFile(std::string path, SDL_Renderer* renderer);
 	void Render(SDL_Renderer* renderer, int x, int y, SDL_Rect* clip);
-	void RenderEx(SDL_Renderer* renderer, SDL_Rect* dst, double angle);
 
 	int GetWidth();
 	int GetHeight();
