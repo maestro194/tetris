@@ -72,13 +72,19 @@ void Game::GameScreen(){
       }
       if(e.type == SDL_KEYDOWN){
         if(e.key.keysym.sym == SDLK_ESCAPE){ // change to pause screen soon
+          int prePauseTick = moveTime - SDL_GetTicks();
           PauseScreen();
+          moveTime = SDL_GetTicks() + prePauseTick;
+
           if (screen == HOME_SCREEN) {
             GameRunning = false;
             GameReset();
           }
+          else if(screen == PAUSE_SCREEN){
+            GameReset();
+          }
         }
-        else if(e.key.keysym.sym == SDLK_LEFT){
+        else if(e.key.keysym.sym == SDLK_COMMA){
           if(gBoard.GroundMoveDelay()){
             gBoard.Move(LEFT);
             if (gBoard.GroundMoveDelay())
@@ -92,7 +98,7 @@ void Game::GameScreen(){
               moveTime = SDL_GetTicks() + MOVE_DELAY; 
           }
         }
-        else if(e.key.keysym.sym == SDLK_DOWN){
+        else if(e.key.keysym.sym == SDLK_PERIOD){
           if(gBoard.GroundMoveDelay()){
             gBoard.Move(DOWN);
             if (gBoard.GroundMoveDelay())
@@ -106,7 +112,7 @@ void Game::GameScreen(){
               moveTime = SDL_GetTicks() + MOVE_DELAY; 
           }
         }
-        else if(e.key.keysym.sym == SDLK_RIGHT){
+        else if(e.key.keysym.sym == SDLK_SLASH){
           if(gBoard.GroundMoveDelay()){
             gBoard.Move(RIGHT);
             if (gBoard.GroundMoveDelay())
@@ -242,24 +248,32 @@ void Game::PauseScreen() {
         }
       }
       if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
-        gPauseResume.HandleEvent(&e);
+        gPauseContinue.HandleEvent(&e);
+        gPauseRetry.HandleEvent(&e);
         gPauseBack.HandleEvent(&e);
       }
     }
-    if (hovered == false && (gPauseResume.buttonSprite == BUTTON_HOVERED || gPauseBack.buttonSprite == BUTTON_HOVERED)) {
+    if (hovered == false && (gPauseContinue.buttonSprite == BUTTON_HOVERED || gPauseRetry.buttonSprite == BUTTON_HOVERED || gPauseBack.buttonSprite == BUTTON_HOVERED)) {
       hovered = true;
       Mix_PlayChannel(-1, gMenu[MENU_HOVERED], 0);
     }
-    else if (gPauseResume.buttonSprite == BUTTON_DEFAULT && gPauseBack.buttonSprite == BUTTON_DEFAULT)
+    else if (gPauseContinue.buttonSprite == BUTTON_DEFAULT && gPauseRetry.buttonSprite == BUTTON_DEFAULT && gPauseBack.buttonSprite == BUTTON_DEFAULT)
       hovered = false;
 
-    if (gPauseResume.buttonSprite == BUTTON_DOWN) { // back to game
+    if (gPauseContinue.buttonSprite == BUTTON_DOWN) { // back to game
       Mix_PlayChannel(-1, gMenu[MENU_CLICKED], 0);
       Mix_ResumeMusic();
-      gPauseResume.buttonSprite = BUTTON_DEFAULT;
+      gPauseContinue.buttonSprite = BUTTON_DEFAULT;
       return;
     }
-
+    if (gPauseRetry.buttonSprite == BUTTON_DOWN) { // restart game
+      Mix_PlayChannel(-1, gMenu[MENU_CLICKED], 0);
+      Mix_HaltMusic();
+      Mix_PlayMusic(gGameBGM, -1);
+      gPauseRetry.buttonSprite = BUTTON_DEFAULT;
+      screen = PAUSE_SCREEN;
+      return;
+    }
     if (gPauseBack.buttonSprite == BUTTON_DOWN) { // back to homescreen
       Mix_PlayChannel(-1, gMenu[MENU_CLICKED], 0);
       Mix_HaltMusic();
@@ -278,7 +292,8 @@ void Game::RenderPauseScreen() {
   gBoard.DrawBoard(renderer);
   gScore.Render(renderer);
   gPauseScreen.Render(renderer, 0, 0, &gPauseScreenClip);
-  gPauseResume.Render(renderer, gPauseResumeTex[gPauseResume.buttonSprite], &gPauseResumeClip);
+  gPauseContinue.Render(renderer, gPauseContinueTex[gPauseContinue.buttonSprite], &gPauseContinueClip);
+  gPauseRetry.Render(renderer, gPauseRetryTex[gPauseRetry.buttonSprite], &gPauseRetryClip);
   gPauseBack.Render(renderer, gPauseBackTex[gPauseBack.buttonSprite], &gPauseBackClip);
 
   SDL_RenderPresent(renderer);
@@ -302,24 +317,24 @@ void Game::GameOverScreen() {
         }
       }
       if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
-        gRetryButton.HandleEvent(&e);
+        gRetryGOButton.HandleEvent(&e);
         gBackGOButton.HandleEvent(&e);
       }
     }
 
-    if (hovered == false && (gRetryButton.buttonSprite == BUTTON_HOVERED || gBackGOButton.buttonSprite == BUTTON_HOVERED)) {
+    if (hovered == false && (gRetryGOButton.buttonSprite == BUTTON_HOVERED || gBackGOButton.buttonSprite == BUTTON_HOVERED)) {
       hovered = true;
       Mix_PlayChannel(-1, gMenu[MENU_HOVERED], 0);
     }
-    else if (gRetryButton.buttonSprite == BUTTON_DEFAULT && gBackGOButton.buttonSprite == BUTTON_DEFAULT)
+    else if (gRetryGOButton.buttonSprite == BUTTON_DEFAULT && gBackGOButton.buttonSprite == BUTTON_DEFAULT)
       hovered = false;
 
-    // retry + back button
-    if (gRetryButton.buttonSprite == BUTTON_DOWN) {
+    // RetryGO + back button
+    if (gRetryGOButton.buttonSprite == BUTTON_DOWN) {
       Mix_PlayChannel(-1, gMenu[MENU_CLICKED], 0);
       GameOverRunning = false;
       screen = GAME_SCREEN;
-      gRetryButton.buttonSprite = BUTTON_DEFAULT;
+      gRetryGOButton.buttonSprite = BUTTON_DEFAULT;
     }
     if (gBackGOButton.buttonSprite == BUTTON_DOWN) {
       Mix_PlayChannel(-1, gMenu[MENU_CLICKED], 0);
@@ -339,7 +354,7 @@ void Game::RenderGameOverScreen() {
   gScore.Render(renderer);
   gGameOverScreen.Render(renderer, 0, 0, &gGameOverScreenClip);
   gScore.RenderGameOverScore(renderer);
-  gRetryButton.Render(renderer, gRetryButtonTex[gRetryButton.buttonSprite], &gRetryButtonClip);
+  gRetryGOButton.Render(renderer, gRetryGOButtonTex[gRetryGOButton.buttonSprite], &gRetryGOButtonClip);
   gBackGOButton.Render(renderer, gBackGOButtonTex[gBackGOButton.buttonSprite], &gBackGOButtonClip);
 
   SDL_RenderPresent(renderer);
@@ -469,8 +484,8 @@ Game::Game(){
   gHelpButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/help.png", renderer);
   gHelpButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/help_hovered.png", renderer);
 
-  gPlayButton.Init(540, 450, 200, 85);
-  gHelpButton.Init(540, 560, 200, 85);
+  gPlayButton.Init(540, 450, 200, 65);
+  gHelpButton.Init(540, 540, 200, 65);
 
   gHomeScreenBGM = Mix_LoadMUS("music/menu_music_Aerial_City_Chika.mp3");
   
@@ -496,25 +511,28 @@ Game::Game(){
   gScore.TextureInit(renderer);
   gPauseScreen.LoadTextureFromFile("images/pause_screen.png", renderer);
 
-  gPauseResumeTex[BUTTON_DEFAULT].LoadTextureFromFile("images/pause_resume.png", renderer);
-  gPauseResumeTex[BUTTON_HOVERED].LoadTextureFromFile("images/pause_resume_hovered.png", renderer);
+  gPauseContinueTex[BUTTON_DEFAULT].LoadTextureFromFile("images/pause_continue.png", renderer);
+  gPauseContinueTex[BUTTON_HOVERED].LoadTextureFromFile("images/pause_continue_hovered.png", renderer);
+  gPauseRetryTex[BUTTON_DEFAULT].LoadTextureFromFile("images/pause_retry.png", renderer);
+  gPauseRetryTex[BUTTON_HOVERED].LoadTextureFromFile("images/pause_retry_hovered.png", renderer);
   gPauseBackTex[BUTTON_DEFAULT].LoadTextureFromFile("images/pause_back.png", renderer);
   gPauseBackTex[BUTTON_HOVERED].LoadTextureFromFile("images/pause_back_hovered.png", renderer);
 
-  gPauseResume.Init(540, 450, 200, 85);
-  gPauseBack.Init(540, 560, 200, 85);
+  gPauseContinue.Init(540, 450, 200, 65);
+  gPauseRetry.Init(540, 530, 200, 65);
+  gPauseBack.Init(540, 610, 200, 65);
 
   gGameBGM = Mix_LoadMUS("music/game_music_Wind_Trail_Chika.mp3");
 
   // gameover screen
   gGameOverScreen.LoadTextureFromFile("images/gameover_screen.png", renderer);
-  gRetryButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/retry.png", renderer);
-  gRetryButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/retry_hovered.png", renderer);
+  gRetryGOButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/retrygo.png", renderer);
+  gRetryGOButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/retrygo_hovered.png", renderer);
   gBackGOButtonTex[BUTTON_DEFAULT].LoadTextureFromFile("images/backgo.png", renderer);
   gBackGOButtonTex[BUTTON_HOVERED].LoadTextureFromFile("images/backgo_hovered.png", renderer);
 
-  gRetryButton.Init(540, 400, 200, 85);
-  gBackGOButton.Init(540, 510, 200, 85);
+  gRetryGOButton.Init(540, 400, 200, 65);
+  gBackGOButton.Init(540, 480, 200, 65);
 
   // helpscreen
   gHelpScreen.LoadTextureFromFile("images/help_screen.png", renderer);
@@ -540,7 +558,7 @@ Game::~Game(){
     Mix_FreeChunk(gCombo[i]);
   Mix_FreeChunk(gLineClear);
   Mix_FreeChunk(gLineClearQuad);
-  //Mix_FreeChunk(gLineClearSpin);
+  Mix_FreeChunk(gLineClearSpin);
   //Mix_FreeChunk(gLineClearAllClear);
   Mix_FreeChunk(gHardDrop);
   Mix_FreeChunk(gHold);
@@ -550,7 +568,10 @@ Game::~Game(){
   // playscreen
   gGameOverScreen.FreeTexture();
   for (int i = 0; i < BUTTON_TOTAL; i++)
-    gRetryButtonTex[i].FreeTexture(),
+    gPauseContinueTex[i].FreeTexture(),
+    gPauseRetryTex[i].FreeTexture(),
+    gPauseBackTex[i].FreeTexture(),
+    gRetryGOButtonTex[i].FreeTexture(),
     gBackGOButtonTex[i].FreeTexture();
   gPauseScreen.FreeTexture();
   Mix_FreeMusic(gGameBGM);

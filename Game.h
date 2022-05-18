@@ -51,8 +51,8 @@ private:
 
   SDL_Rect gHomeScreenClip = {0, 0, 1280, 720};
   SDL_Rect gTetrisLogoClip = {415, 0, 450, 318};
-  SDL_Rect gPlayButtonClip = {515, 450, 200, 85};
-  SDL_Rect gHelpButtonClip = {515, 560, 200, 85};
+  SDL_Rect gPlayButtonClip = {515, 450, 200, 65};
+  SDL_Rect gHelpButtonClip = {515, 560, 200, 65};
 
   Mix_Music* gHomeScreenBGM; // worked
   Mix_Chunk* gMenu[TOTAL_MENU_SFX];
@@ -72,15 +72,18 @@ private:
     Score gScore;
 
     Texture gPauseScreen;
-    Texture gPauseResumeTex[BUTTON_TOTAL];
+    Texture gPauseContinueTex[BUTTON_TOTAL];
+    Texture gPauseRetryTex[BUTTON_TOTAL];
     Texture gPauseBackTex[BUTTON_TOTAL];
 
-    Button gPauseResume;
+    Button gPauseContinue;
+    Button gPauseRetry;
     Button gPauseBack;
 
-    SDL_Rect gPauseScreenClip = { 0, 0, 1280, 720 };
-    SDL_Rect gPauseResumeClip = { 540, 450, 200, 85 };
-    SDL_Rect gPauseBackClip = { 540, 560, 200, 85 };
+    SDL_Rect gPauseScreenClip = {0, 0, 1280, 720};
+    SDL_Rect gPauseContinueClip = {540, 450, 200, 65};
+    SDL_Rect gPauseRetryClip = {540, 530, 200, 65};
+    SDL_Rect gPauseBackClip = {540, 610, 200, 65};
 
     Mix_Music* gGameBGM; // worked
 
@@ -90,15 +93,15 @@ private:
 
     // gameover screen
     Texture gGameOverScreen; // fullscreen
-    Texture gRetryButtonTex[BUTTON_TOTAL];
+    Texture gRetryGOButtonTex[BUTTON_TOTAL];
     Texture gBackGOButtonTex[BUTTON_TOTAL];
     
-    Button gRetryButton;
+    Button gRetryGOButton;
     Button gBackGOButton;
 
     SDL_Rect gGameOverScreenClip = { 0, 0, 1280, 720 };
-    SDL_Rect gRetryButtonClip = { 565, 400, 200, 85 };
-    SDL_Rect gBackGOButtonClip = { 565, 510, 200, 85 };
+    SDL_Rect gRetryGOButtonClip = { 565, 400, 200, 65 };
+    SDL_Rect gBackGOButtonClip = { 565, 510, 200, 65 };
 
     // Helpscreen
     Texture gHelpScreen; // fullscreen
